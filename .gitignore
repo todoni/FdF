@@ -1,0 +1,9 @@
+minilibx-mac-osx/
+*.zip
+*.tgz
+*.o
+*.out
+.ccls
+test_maps/
+*tutorial*
+
