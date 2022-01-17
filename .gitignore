@@ -1,8 +1,8 @@
-minilibx-mac-osx/
 *.zip
 *.tgz
+*.tar
 *.o
-*.out
+*.out*
 .ccls
 test_maps/
 *tutorial*
