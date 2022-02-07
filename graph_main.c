@@ -1,4 +1,5 @@
 #include "fdf_graph.h"
+#include "libft/libft.h"
 #include "mlx.h"
 #include <stdio.h>
 #include <math.h>
@@ -79,7 +80,7 @@ void	matrix_calculation(t_coordinate *coor, double matrix[3][3])
 
 void	traversal_DFS_recursion(t_graph *graph, int vertex_id, t_coordinate *coor, double matrix[3][3])
 {
-	t_list	*closeNode;
+	t_node	*closeNode;
 	int index = 0;
 
 	if (graph->edge[vertex_id]->visited == VISITED)
@@ -101,7 +102,7 @@ void	traversal_DFS_recursion(t_graph *graph, int vertex_id, t_coordinate *coor, 
 
 void	traversal_DFS_recursion1(t_graph *graph, int vertex_id, t_coordinate *coor)
 {
-	t_list	*closeNode;
+	t_node	*closeNode;
 	int index = 0;
 
 	if (graph->edge[vertex_id]->visited == VISITED)
@@ -129,7 +130,7 @@ void	traversal_DFS_recursion1(t_graph *graph, int vertex_id, t_coordinate *coor)
 
 void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor, t_data *data)
 {
-	t_list	*closeNode;
+	t_node	*closeNode;
 	int index = 0;
 	int scale = 50;
 	int offset = 300;
@@ -142,7 +143,7 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
 	double x;
 	double y;
 
-	//t_list *next_point = graph->edge[vertex_id]->next;
+	//t_node *next_point = graph->edge[vertex_id]->next;
 	//printf("hi\n");
 	/*//if (next_point)
 	//{
@@ -185,31 +186,31 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
 			delta_x /= pixels;
 			delta_y /= pixels;
 		}*/
-		scale = 50;
+		scale = 10;
 		int precise = 50;
 		x = coor[vertex_id].screen_x * scale;
 		y = coor[vertex_id].screen_y * scale;
 		double x_next = closeNode->screen_x * scale;
 		double y_next = closeNode->screen_y * scale;
-		double delta_x = (x_next - x)/ precise;
-		double delta_y = (y_next - y)/ precise;
-		//double delta_x = (x_next - x);
-		//double delta_y = (y_next - y);
+		//double delta_x = (x_next - x)/ precise;
+		//double delta_y = (y_next - y)/ precise;
+		double delta_x = (x_next - x);
+		double delta_y = (y_next - y);
 		double pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
 		//printf("pixel : %d\n", pixels);
 		
-		//delta_x /= pixels;
-		//delta_y /= pixels;
+		delta_x /= pixels;
+		delta_y /= pixels;
 		//x = round(x);
 		//y = round(y);
 		printf("delta_x : %.1f delta_y : %.1f\n\n", delta_x, delta_y);
 		index = 0;
-		//while (round(pixels))
-		while (precise)
+		while (round(pixels))
+		//while (precise)
 		{
-		printf("p%d:    %.1f %.1f   ->   p%d:%.1f %.1f\n", vertex_id, x, y, closeNode->vertex_id, x_next, y_next);
-		printf("p%d:    %d %d   ->   p%d:%d %d\n", vertex_id, (int)x, (int)y, closeNode->vertex_id, (int)x_next, (int)y_next);
-		printf("p%d:    %.1f %.1f   ->   p%d:%d %d\n\n", vertex_id, round(x), round(y), closeNode->vertex_id, (int)x_next, (int)y_next);
+		//printf("p%d:    %.1f %.1f   ->   p%d:%.1f %.1f\n", vertex_id, x, y, closeNode->vertex_id, x_next, y_next);
+		//printf("p%d:    %d %d   ->   p%d:%d %d\n", vertex_id, (int)x, (int)y, closeNode->vertex_id, (int)x_next, (int)y_next);
+		//printf("p%d:    %.1f %.1f   ->   p%d:%d %d\n\n", vertex_id, round(x), round(y), closeNode->vertex_id, (int)x_next, (int)y_next);
 
     	//mlx_pixel_put(mlx, win, pixelX, pixelY, color);
 			//printf("102\n");
@@ -218,9 +219,9 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
     		x += delta_x;
     		y += delta_y;
     		//pixels_scaled3 -= delta_y3;
-			//pixels--;
+			pixels--;
 			index++;
-			precise--;
+			//precise--;
 		}
 		printf("%d번 더했음\n", index);
 		if (closeNode->visited != VISITED)
@@ -229,17 +230,64 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
 	}
 }
 
+int	count_size(t_coordinate_list *coor)
+{
+	int count;
+
+	count = 0;
+	while (coor)
+	{
+		coor = coor->next;
+		count++;
+	}
+	return (count);
+}
+
 int main()
 {
 	t_graph	*undirect;
-	int	num_point = 8;
-	t_coordinate *coor;
+	int	num_point;
 
-	coor = calloc(num_point, sizeof(t_coordinate));
 	int num_col = 3;
 	int scale = 50;
 
+	int fd;
+	int	point_per_line;
+	t_coordinate *coor;
+	t_coordinate_list *save;
+
+	fd = open("/Users/sohan/42cursus/fdf/test_maps/42.fdf", O_RDONLY);
+	save = 0;
+	point_per_line = read_map(fd, &save);
+	printf("point per line:%d\n", point_per_line);
+	//num_point = ft_lstsize(save); 
+	t_coordinate_list *tmp;
+
+	tmp = save;
+	while (tmp)
+	{
+		printf("%d %d %d\n", tmp->x, tmp->y, tmp->z);
+		tmp = tmp->next;
+		num_point++;
+	}
+	//num_point = count_size(tmp);
+	printf("%d\n", num_point);
+	coor = (t_coordinate *)ft_calloc(num_point, sizeof(t_coordinate));
+	tmp = save;
+	int index = 0;
+	while (tmp)
+	{
+		coor[index].x = tmp->x;
+		coor[index].y = tmp->y;
+		coor[index].z = tmp->z;
+		index++;
+		tmp = tmp->next;
+	}
+	//put_map(save, &coor);
 	printf("coordinate\nx y z\n");
+	for (int i=0; i < num_point; i++)
+		printf("%d %d %d\n", coor[i].x, coor[i].y, coor[i].z);
+
 	/*for (int i = 0; i < num_point; i++)
 	{
 		coor[i].x = i / num_col;
@@ -249,40 +297,46 @@ int main()
 	}
 	printf("\n");
 	*/
-	coor[0].x = -1;
-	coor[0].y = -1;
-	coor[0].z = -1;
+/*	
+	coor[0].x = 0;
+	coor[0].y = 0;
+	coor[0].z = 0;
 
 	coor[1].x = 0;
 	coor[1].y = 0;
-	coor[1].z = 2;
+	coor[1].z = 1;
 
-	coor[2].x = 1;
-	coor[2].y = -2;
-	coor[2].z = -2;
+	coor[2].x = 0;
+	coor[2].y = 0;
+	coor[2].z = 2;
 
 	coor[3].x = 1;
-	coor[3].y = -2;
-	coor[3].z = 2;
+	coor[3].y = 0;
+	coor[3].z = 0;
 	
-	coor[4].x = 0;
-	coor[4].y = 2;
-	coor[4].z = 0;
+	coor[4].x = 1;
+	coor[4].y = 0;
+	coor[4].z = 1;
 
-	coor[5].x = 0;
-	coor[5].y = 1;
-	coor[5].z = 1;
+	coor[5].x = 1;
+	coor[5].y = 0;
+	coor[5].z = 2;
 
-	coor[6].x = 1;
-	coor[6].y = 1;
+	coor[6].x = 2;
+	coor[6].y = 0;
 	coor[6].z = 0;
 
-	coor[7].x = 1;
-	coor[7].y = 1;
+	coor[7].x = 2;
+	coor[7].y = 0;
 	coor[7].z = 1;
 
-		double alpha = asin(tan(30 * M_PI / 180));
-	double beta = 45 * M_PI / 180;
+	coor[8].x = 2;
+	coor[8].y = 0;
+	coor[8].z = 2;
+*/
+
+		double alpha = asin(tan(-30 * M_PI / 180));
+	double beta = M_PI - (45 * M_PI / 180);
 
 	//asin();
 	printf("alpha : %f, beta : %f, tan45 : %f\n", alpha, beta, tan(45 * M_PI / 180));
@@ -305,20 +359,34 @@ int main()
 	img.img = mlx_new_image(mlx, 1280, 720);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
 	int offset = 100;
-	//int scale = 10;
+	int	i;
+	i = 0;
 
 	//make graph
 	undirect = create_graph(num_point);
 	t_graph *undirect2 = create_graph(num_point);
-	add_vertex(undirect, 0);
-	add_vertex(undirect, 1);
-	add_vertex(undirect, 2);
-	add_vertex(undirect, 3);
-	add_vertex(undirect, 4);
-	add_vertex(undirect, 5);
-	add_vertex(undirect, 6);
-	add_vertex(undirect, 7);
-	//add_vertex(undirect, 8);
+	while (i < num_point)
+	{
+		add_vertex(undirect, i);
+		i++;
+	}
+
+	i = 0;
+	while (i < num_point)
+	{
+		if ((i + 1) % point_per_line == 0)
+			i++;
+		add_edge(undirect, i, i + 1);
+		i++;
+	}
+	i = 0;
+
+	while (i + point_per_line < num_point)
+	{
+		add_edge(undirect, i, i + point_per_line);
+		i++;
+	}
+	/*
 	add_edge(undirect, 0, 1);
 	add_edge(undirect, 0, 2);
 	//add_edge(undirect, 2, 3);
@@ -330,12 +398,13 @@ int main()
 	add_edge(undirect, 0, 4);
 	add_edge(undirect, 1, 5);
 	add_edge(undirect, 2, 6);
+	*/
 	//add_edge(undirect, 3, 7);
 	printf("diplay undirected graph\n");
 	display_graph(undirect);
 	printf("DFS recursion\n");
 	traversal_DFS_recursion(undirect, 0, coor, translation_matrix);
-	printf("\nnew points\n");
+	printf("\nnew point\n");
 	for (int i = 0; i < num_point; i++)
 	{
 		printf("%f %f\n", coor[i].screen_x, coor[i].screen_y);

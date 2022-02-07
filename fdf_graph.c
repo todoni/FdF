@@ -10,18 +10,18 @@ int is_vertex_valid(t_graph *graph, int vertex_id)
 
 t_graph* create_graph(int max_vertex_count)
 {
-    t_graph* tmp = malloc(sizeof(t_graph));
+    t_graph* tmp = ft_calloc(1, sizeof(t_graph));
 	if (!tmp)
 	    return 0;
 	tmp->max_vertex_count = max_vertex_count;
 	tmp->current_vertex_count = 0;
 	//tmp->graphType = GRAPH_UNDIRECTED;
-	t_list	**tmpList = calloc(max_vertex_count, sizeof(t_list*));
+	t_node	**tmpList = ft_calloc(max_vertex_count, sizeof(t_node*));
 	if (!tmpList)
 		return 0;
 	for (int i = 0; i < max_vertex_count; i++)
 	{
-		tmpList[i] = calloc(1, sizeof(t_list));
+		tmpList[i] = ft_calloc(1, sizeof(t_node));
 		if (!tmpList[i])
 		{
 			while (--i > -1)
@@ -32,7 +32,7 @@ t_graph* create_graph(int max_vertex_count)
 		tmpList[i]->vertex_id = i;
 	}
 	tmp->edge = tmpList;
-	int	*tmpVertex = calloc(max_vertex_count, sizeof(int));
+	int	*tmpVertex = ft_calloc(max_vertex_count, sizeof(int));
 	if (!tmpVertex)
 		return 0;
 	tmp->vertex = tmpVertex;
@@ -54,7 +54,7 @@ void display_graph(t_graph* graph)
 	/* edge print */
 	for (int i = 0; i < graph->max_vertex_count; i++)
     {
-        t_list *tmp = graph->edge[i];
+        t_node *tmp = graph->edge[i];
 		if (is_vertex_valid(graph, tmp->vertex_id))
 			printf("\e[32m(O)");
 		else	printf("\e[31m(X)");
@@ -109,16 +109,16 @@ int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id)
     //if (findGraphNodePosition(graph->edge[from_vertex_id], to_vertex_id))
     //    return (FAIL);
 
-	t_list  *tmp = calloc(1, sizeof(t_list));
+	t_node  *tmp = ft_calloc(1, sizeof(t_node));
 	if (!tmp)	return FAIL;
 	tmp->vertex_id = to_vertex_id;
-	t_list	*ptr = graph->edge[from_vertex_id];
+	t_node	*ptr = graph->edge[from_vertex_id];
 	while (ptr->next)
 		ptr = ptr->next;
     ptr->next = tmp;
 	/*if (graph->graphType == GRAPH_UNDIRECTED)
 	//{
-		tmp = calloc(1, sizeof(t_list));
+		tmp = calloc(1, sizeof(t_node));
 		if (!tmp)	return FAIL;
 		tmp->vertex_id = from_vertex_id;
 		ptr = graph->edge[to_vertex_id];
