@@ -33,7 +33,7 @@ int	read_map(int fd, t_coordinate_list **save)
 			{
 				while (move->next)
 					move = move->next;
-				move->next = ft_calloc(1, sizeof(t_coordinate_list ));
+				move->next = ft_calloc(1, sizeof(t_coordinate_list));
 				move->next->x = row;
 				move->next->y = ft_atoi(words[i]);
 				move->next->z = i;
@@ -45,7 +45,7 @@ int	read_map(int fd, t_coordinate_list **save)
 				(*save)->y = ft_atoi(words[i]);
 				(*save)->z = i;
 			}
-			printf("%s ", words[i]);
+			//printf("%s ", words[i]);
 			i++;
 			num_points++;
 		}
