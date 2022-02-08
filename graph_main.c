@@ -42,8 +42,9 @@ void	matrix_calculation(t_coordinate *coor, double matrix[3][3])
 	coor->new_y = new_point[1];
 	coor->new_z = new_point[2];
 	
-	coor->screen_x = -coor->new_x;
-	coor->screen_y = -coor->new_y;
+	coor->screen_x = -coor->new_x * 10;
+	coor->screen_y = -coor->new_y * 10;
+	printf("x  y\n%.1f %.1f\n", coor->screen_x, coor->screen_y);
 }
 
 void	traversal_DFS_recursion(t_graph *graph, int vertex_id, t_coordinate *coor, double matrix[3][3])
@@ -84,11 +85,10 @@ void	traversal_DFS_recursion1(t_graph *graph, int vertex_id, t_coordinate *coor)
 	}
 }
 
-void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor, t_data *data)
+void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor, t_data *data, int offset)
 {
 	t_node	*closeNode;
 	int		scale;
-	int		offset;
 	double	x;
 	double	y;
 	double	pixels;
@@ -97,18 +97,17 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
 	double	delta_x;
 	double	delta_y;
 
-	offset = 300;
+	//scale = 10;
 	if (graph->edge[vertex_id]->visited == VISITED)
 		return ;
 	graph->edge[vertex_id]->visited = VISITED;
 	closeNode = graph->edge[vertex_id]->next;
 	while (closeNode)
 	{
-		scale = 10;
-		x = coor[vertex_id].screen_x * scale;
-		y = coor[vertex_id].screen_y * scale;
-		x_next = closeNode->screen_x * scale;
-		y_next = closeNode->screen_y * scale;
+		x = coor[vertex_id].screen_x; //* scale;
+		y = coor[vertex_id].screen_y; //* scale;
+		x_next = closeNode->screen_x; //* scale;
+		y_next = closeNode->screen_y; //* scale;
 		delta_x = (x_next - x);
 		delta_y = (y_next - y);
 		pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
@@ -117,13 +116,13 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_coordinate *coor,
 		delta_y /= pixels;
 		while (round(pixels))
 		{
-			my_mlx_pixel_put(data, offset + round(x), offset + round(y), 0x00FF0000);
+			my_mlx_pixel_put(data, round(x), offset + round(y), 0x00FF0000);
     		x += delta_x;
     		y += delta_y;
 			pixels--;
 		}
 		if (closeNode->visited != VISITED)
-			traversal_DFS_recursion2(graph, closeNode->vertex_id, coor, data);
+			traversal_DFS_recursion2(graph, closeNode->vertex_id, coor, data, offset);
 		closeNode = closeNode->next;
 	}
 }
@@ -194,6 +193,55 @@ void	initialize_visit(t_graph *undirect)
 	}
 }
 
+int	find_x_max(t_coordinate *coor, int num_point)
+{
+	int	index;
+	int	max;
+
+	index = 0;
+	max = -2147483648;
+	while (index < num_point)
+	{
+		if (coor[index].screen_x > max)
+			max = coor[index].screen_x;
+		index++;
+	}
+	return (max);
+}
+
+int	find_y_min(t_coordinate *coor, int num_point)
+{
+	int	index;
+	int	min;
+
+	index = 0;
+	min = 2147483647;
+	while (index < num_point)
+	{
+		if (coor[index].screen_y < min)
+			min = coor[index].screen_y;
+		index++;
+	}
+	return (min);
+}
+
+int	find_y_max(t_coordinate *coor, int num_point)
+{
+	int	index;
+	int	max;
+
+	index = 0;
+	max = -2147483648;
+	while (index < num_point)
+	{
+		if (coor[index].screen_y > max)
+			max = coor[index].screen_y;
+		index++;
+	}
+	return (max);
+}
+
+
 #define X_EVENT_KEY_PRESS		2
 #define X_EVENT_KEY_release		3
 #define X_EVENT_KEY_EXIT		17 //exit key code
@@ -225,6 +273,8 @@ int main()
 	void				*mlx;
 	void				*mlx_win;
 	t_data				img;
+	int					screen_max;
+	int					screen_min;
 
 	fd = open("/Users/sohan/42cursus/fdf/test_maps/42.fdf", O_RDONLY);
 	save = 0;
@@ -244,9 +294,6 @@ int main()
 		{cos(alpha) * sin(beta), -sin(alpha), cos(alpha) * cos(beta)}}; 
 
 	mlx = mlx_init();
-	mlx_win = mlx_new_window(mlx, 1280, 720, "Tutorial Window");
-	img.img = mlx_new_image(mlx, 1280, 720);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
 
 	undirect = create_graph(num_point);
 	t_graph *undirect2 = create_graph(num_point);
@@ -255,7 +302,13 @@ int main()
 	initialize_visit(undirect);
 	traversal_DFS_recursion1(undirect, 0, coor);
 	initialize_visit(undirect);
-	traversal_DFS_recursion2(undirect, 0, coor, &img);
+	screen_max = find_x_max(coor, num_point);
+	screen_min = abs(find_y_min(coor, num_point)) + abs(find_y_max(coor, num_point));
+	printf("%d %d\n", screen_max, screen_min);
+	img.img = mlx_new_image(mlx, screen_max, screen_min);
+	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
+	mlx_win = mlx_new_window(mlx, screen_max, screen_min, "fdf");
+	traversal_DFS_recursion2(undirect, 0, coor, &img, abs(find_y_min(coor, num_point)));
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
 	mlx_hook(mlx_win, X_EVENT_KEY_PRESS, 0, &key_press, 0);
 	mlx_loop(mlx);
