@@ -37,6 +37,7 @@ int	read_map(int fd, t_coordinate_list **save)
 				move->next->x = row;
 				move->next->y = ft_atoi(words[i]);
 				move->next->z = i;
+				move->next->color = ft_split(words[i], ',')[1];
 			}
 			else
 			{
@@ -44,6 +45,7 @@ int	read_map(int fd, t_coordinate_list **save)
 				(*save)->x = row;
 				(*save)->y = ft_atoi(words[i]);
 				(*save)->z = i;
+				(*save)->color = ft_split(words[i], ',')[1];
 			}
 			//printf("%s ", words[i]);
 			i++;

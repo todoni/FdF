@@ -72,9 +72,10 @@ void display_graph(t_graph* graph)
 		if (is_vertex_valid(graph, tmp->vertex_id))
 			printf("\e[32m(O)");
 		else	printf("\e[31m(X)");
-        while (tmp)
+        while (tmp && tmp->screen_x)
         {
-            printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, tmp->screen_x, tmp->screen_y);
+            //printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
+            printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
             tmp = tmp->next;
 			if (tmp) printf(" -> ");
         }
@@ -101,18 +102,23 @@ int is_empty_graph(t_graph* graph)
 }
 
 // 노드 추가
-int add_vertex(t_graph* graph, int vertex_id)
+int add_vertex(t_graph* graph, int vertex_id, t_coordinate *coor)
 {
 	if (vertex_id < 0 || vertex_id >= graph->max_vertex_count)
 		return FAIL;
 	if (!graph->vertex[vertex_id])
    		graph->current_vertex_count++;
    	graph->vertex[vertex_id] = USED;
+	t_node *ptr;
+	ptr = graph->edge[vertex_id];
+	ptr->screen_x = &coor[vertex_id].screen_x;
+	ptr->screen_y = &coor[vertex_id].screen_y;
+	ptr->color = coor[vertex_id].color;
 	return SUCCESS;
 }
 
 // 간선 추가
-int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id)
+int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id, t_coordinate *coor)
 {
     if (!is_vertex_valid(graph, from_vertex_id) || !is_vertex_valid(graph, to_vertex_id))
 		return FAIL;
@@ -128,8 +134,13 @@ int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id)
 	if (!tmp)
 		return FAIL;
 	tmp->vertex_id = to_vertex_id;
+	tmp->screen_x = &coor[to_vertex_id].screen_x;
+	tmp->screen_y = &coor[to_vertex_id].screen_y;
+	tmp->color = coor[to_vertex_id].color;
 	t_node	*ptr;
 	ptr = graph->edge[from_vertex_id];
+	//ptr->screen_x = &coor[from_vertex_id].screen_x;
+	//ptr->screen_y = &coor[from_vertex_id].screen_y;
 	while (ptr->next)
 		ptr = ptr->next;
     ptr->next = tmp;

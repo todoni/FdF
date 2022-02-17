@@ -15,6 +15,7 @@ typedef struct	s_coordinate
 	double	new_z;
 	double	screen_x;
 	double	screen_y;
+	char	*color;
 }				t_coordinate;
 
 typedef struct	s_coordinate_list
@@ -27,6 +28,7 @@ typedef struct	s_coordinate_list
 	double	new_z;
 	double	screen_x;
 	double	screen_y;
+	char	*color;
 	struct s_coordinate_list *next;
 }				t_coordinate_list;
 
@@ -36,8 +38,9 @@ typedef struct	s_node
 {
 	int	vertex_id;
 	int	visited;
-	double screen_x;
-	double screen_y;
+	double *screen_x;
+	double *screen_y;
+	char	*color;
 	struct s_node *next;
 }				t_node;
 
@@ -52,8 +55,8 @@ typedef struct	s_graph
 
 t_graph	*create_graph(int max_vertex_count);
 
-int		add_vertex(t_graph *graph, int vertex_id);
-int		add_edge(t_graph *graph, int from_vertex_id, int to_vertex_id);
+int		add_vertex(t_graph *graph, int vertex_id, t_coordinate *coor);
+int		add_edge(t_graph *graph, int from_vertex_id, int to_vertex_id, t_coordinate *coor);
 int		is_empty_graph(t_graph *graph);
 void	display_graph(t_graph *graph);
 int 	is_vertex_valid(t_graph *graph, int vertex_id);
