@@ -8,6 +8,31 @@ int is_vertex_valid(t_graph *graph, int vertex_id)
     return (FALSE);
 }
 
+void deleteLinkedGraph(t_graph* pGraph)
+{
+	if (!pGraph->current_vertex_count)
+		return ;
+	/* ppAdjEdge free */
+	for (int i = 0; i < pGraph->max_vertex_count; i++)
+	{
+		while (pGraph->edge[i])
+		{
+		    t_node 	*tmp = pGraph->edge[i];
+            pGraph->edge[i] = pGraph->edge[i]->next;
+			//free(tmp->color);
+			free(tmp);
+		}
+	}
+	free(pGraph->edge);
+	pGraph->edge = NULL;
+	free(pGraph->vertex);
+    pGraph->vertex = NULL;
+	free(pGraph);
+	//pGraph->max_vertex_count = pGraph->current_vertex_count = pGraph->current_edge_count = 0;
+	printf("Graph deleted\n");
+}
+
+
 t_node	**create_list(int max_vertex_count)
 {
 	t_node	**tmp_list; 
@@ -113,7 +138,7 @@ int add_vertex(t_graph* graph, int vertex_id, t_coordinate *coor)
 	ptr = graph->edge[vertex_id];
 	ptr->screen_x = &coor[vertex_id].screen_x;
 	ptr->screen_y = &coor[vertex_id].screen_y;
-	ptr->color = coor[vertex_id].color;
+	//ptr->color = coor[vertex_id].color;
 	return SUCCESS;
 }
 
@@ -136,7 +161,7 @@ int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id, t_coordinate 
 	tmp->vertex_id = to_vertex_id;
 	tmp->screen_x = &coor[to_vertex_id].screen_x;
 	tmp->screen_y = &coor[to_vertex_id].screen_y;
-	tmp->color = coor[to_vertex_id].color;
+	//tmp->color = coor[to_vertex_id].color;
 	t_node	*ptr;
 	ptr = graph->edge[from_vertex_id];
 	//ptr->screen_x = &coor[from_vertex_id].screen_x;

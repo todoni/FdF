@@ -29,6 +29,7 @@ typedef struct	s_coordinate_list
 	double	screen_x;
 	double	screen_y;
 	char	*color;
+	t_coordinate	*block;
 	struct s_coordinate_list *next;
 }				t_coordinate_list;
 
@@ -53,6 +54,14 @@ typedef struct	s_graph
 	int		*vertex;
 }				t_graph;
 
+typedef struct	s_map
+{
+	int	column;
+	int	row;
+	int	size;
+}				t_map;
+
+
 t_graph	*create_graph(int max_vertex_count);
 
 int		add_vertex(t_graph *graph, int vertex_id, t_coordinate *coor);
@@ -62,8 +71,10 @@ void	display_graph(t_graph *graph);
 int 	is_vertex_valid(t_graph *graph, int vertex_id);
 void	*ft_memset(void *b, int c, size_t len);
 void	*ft_calloc(size_t count, size_t len);
-int		read_map(int fd, t_coordinate_list **save);
+int		read_map(int fd, t_coordinate_list **save, t_map *map);
+int		read_map2(int fd, t_coordinate *save, t_map *map);
 void	put_map(t_coordinate_list *coor_list, t_coordinate **coor);
+void	deleteLinkedGraph(t_graph *pGraph);
 
 #endif
 

@@ -465,14 +465,13 @@ void	connect_vertexes(t_graph *undirect, int point_per_line, int num_point, t_co
 	}
 }
 
-
 int main(int argc, char **argv)
 {
 	t_graph				*undirect;
 	int					num_point;
 	int					fd;
 	int					point_per_line;
-	t_coordinate		*coor;
+	t_coordinate		coor[1000000];
 	t_coordinate_list	*save;
 	double				alpha;
 	double				beta;
@@ -489,15 +488,18 @@ int main(int argc, char **argv)
 	t_offset			offset;
 	char				*filename;
 	t_param				param;
+	t_map				map;
 
 	filename = argv[1];
 
 	fd = open(filename, O_RDONLY);
 	save = 0;
-	point_per_line = read_map(fd, &save);
-	num_point = count_size(save);
-	coor = (t_coordinate *)ft_calloc(num_point, sizeof(t_coordinate));
-	make_coor(coor, save);
+	//point_per_line = read_map(fd, &save);
+	point_per_line = read_map2(fd, coor, &map);
+	//num_point = count_size(save);
+	num_point = map.size;
+	//coor = (t_coordinate *)ft_calloc(num_point, sizeof(t_coordinate));
+	//make_coor(coor, save);
 	component.alpha = asin(tan(30 * M_PI / 180));
 	component.beta = 45 * M_PI / 180;
 
