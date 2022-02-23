@@ -205,42 +205,23 @@ int	find_y_max(t_coordinate *coor, int num_point)
 #define X_EVENT_KEY_PRESS		2
 
 #define KEY_ESC			53
-#define MAX_SCREEN_WIDTH 1680
-#define MAX_SCREEN_HEIGHT 1050
+#define MAX_SCREEN_WIDTH 1440
+#define MAX_SCREEN_HEIGHT 900
 
 void	matrix_calc(t_coordinate *coor, t_matrix component, int	size, int distance)
 {
 	int		index;
-	double	f = 1000;
-	double	n = 0.1;
 
 	index = 0;
 	while (index < size)
 	{
-		//coor[index].x *= ZOOM_DEFAULT;
-		coor[index].y *= -1;
+		coor[index].x *= ZOOM_DEFAULT;
+		coor[index].y *= -ZOOM_DEFAULT;
+		coor[index].z *= ZOOM_DEFAULT;
 		coor[index].screen_x = (cos(component.beta) * coor[index].x + sin(component.beta) * coor[index].z);
 		coor[index].screen_y = (sin(component.alpha) * sin(component.beta) * coor[index].x \
 										  + cos(component.alpha) * coor[index].y \
 							   - (sin(component.alpha) * cos(component.beta) * coor[index].z));
-		coor[index].new_z = (-(cos(component.alpha) * sin(component.beta) * coor[index].x) \
-										  + sin(component.alpha) * coor[index].y \
-							   + cos(component.alpha) * cos(component.beta) * coor[index].z);
-		//coor[index].new_z = - (f / (f - n)) * coor[index].new_z - 1;
-
-		//coor[index].new_z += distance;
-		//printf("%d: %f %f %f\n",index, coor[index].screen_x, coor[index].screen_y, coor[index].new_z);
-		//printf("%d: %f %f %f\n",index, coor[index].screen_x, coor[index].screen_y, coor[index].new_z);
-		coor[index].new_z += distance;
-		coor[index].screen_x /= coor[index].new_z;
-		coor[index].screen_y /= coor[index].new_z;
-		coor[index].screen_x *= 1440;
-		coor[index].screen_y *= 900;
-		coor[index].screen_x /= 8;
-		coor[index].screen_y /= 6; // ??
-		//coor[index].z *= ZOOM_DEFAULT;
-		printf("%d: %f %f %f\n",index, coor[index].screen_x, coor[index].screen_y, coor[index].new_z);
-
 		index++;
 	}
 }

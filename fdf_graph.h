@@ -16,6 +16,7 @@ typedef struct	s_coordinate
 	double	screen_x;
 	double	screen_y;
 	char	*color;
+	int		visible;
 }				t_coordinate;
 
 typedef struct	s_coordinate_list
@@ -37,10 +38,11 @@ typedef struct	s_coordinate_list
 
 typedef struct	s_node
 {
-	int	vertex_id;
-	int	visited;
-	double *screen_x;
-	double *screen_y;
+	int		vertex_id;
+	int		visited;
+	double	*screen_x;
+	double	*screen_y;
+	int		*visible;
 	char	*color;
 	struct s_node *next;
 }				t_node;
