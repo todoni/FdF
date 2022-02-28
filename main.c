@@ -41,9 +41,23 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 
 typedef struct	s_offset
 {
-	int	y;
-	int	x;
+	double	y;
+	double	x;
 }				t_offset;
+
+typedef	struct	s_colors
+{
+	int	from_r;
+	int	from_g;
+	int	from_b;
+	int	to_r;
+	int	to_g;
+	int	to_b;
+	int	delta_r;
+	int	delta_g;
+	int	delta_b;
+}				t_color;
+
 
 void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_offset offset)
 {
@@ -51,16 +65,27 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 	int		scale;
 	double	x;
 	double	y;
-	double	pixels;
+	int		pixels;
 	double	x_next;
 	double	y_next;
 	double	delta_x;
 	double	delta_y;
+	t_color	color;
+	int		full_color_to;
+	int		full_color_from;
+	int		colors;
 
 	if (graph->edge[vertex_id]->visited == VISITED)
 		return ;
 	graph->edge[vertex_id]->visited = VISITED;
 	closeNode = graph->edge[vertex_id]->next;
+	color.from_r = 0xFF0000 & 0b111111110000000000000000;
+	color.from_g = 0xFF0000 & 0b000000001111111100000000;
+	color.from_b = 0xFF0000 & 0b000000000000000011111111;
+	color.to_r = 0xFF0000 & 0b111111110000000000000000;
+	color.to_g = 0xFF0000 & 0b000000001111111100000000;
+	color.to_b = 0xFF0000 & 0b000000000000000011111111;
+	colors = 0;
 	while (closeNode)
 	{
 		x = *graph->edge[vertex_id]->screen_x;
@@ -70,20 +95,47 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		delta_x = (x_next - x);
 		delta_y = (y_next - y);
 		pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+		if (closeNode->color)
+		{
+			full_color_to = strtol(closeNode->color, NULL, 16);
+			color.to_r = full_color_to & 0b111111110000000000000000;
+			color.to_g = full_color_to & 0b000000001111111100000000;
+			color.to_b = full_color_to & 0b000000000000000011111111;
+		}
+		if (graph->edge[vertex_id]->color)
+		{	
+			full_color_from = strtol(graph->edge[vertex_id]->color, NULL, 16);
+			color.from_r = full_color_from & 0b111111110000000000000000;
+			color.from_g = full_color_from & 0b000000001111111100000000;
+			color.from_b = full_color_from & 0b000000000000000011111111;
+		}
+		color.delta_r = (color.to_r >> 16) - (color.from_r >> 16);
+		color.delta_g = (color.to_g >> 8) - (color.from_g >> 8);
+		color.delta_b = color.to_b - color.from_b;
 		
 		delta_x /= pixels;
 		delta_y /= pixels;
-		while (round(pixels))
+		color.delta_r /= pixels;
+		color.delta_g /= pixels;
+		color.delta_b /= pixels;
+
+		//printf("delta color: %d\n", delta_g);
+		while (pixels)
 		{
-			//if (closeNode->color)
-			//{
-			//	my_mlx_pixel_put(data, round(x), offset.y + round(y), strtol(closeNode->color, NULL, 16));
-				//free(closeNode->color);
-			//}
-			//else
-			my_mlx_pixel_put(data, 720 + round(x), 600 + round(y), 0xFF0000);
+			colors = color.from_r + color.from_g + color.from_b;
+			my_mlx_pixel_put(data, round(x), offset.y + round(y), colors);
+			/*if (round(x) == 720 && round(y) <= -450)
+			{
+				
+				printf("%f %f\n", x, y);
+				printf("%f %f\n", round(x), round(y));
+				printf("%d %d\n\n", (int)x, (int)y);
+			}*/
     		x += delta_x;
     		y += delta_y;
+			color.from_r += color.delta_r << 16;
+			color.from_g += color.delta_g << 8;
+			color.from_b += color.delta_b;
 			pixels--;
 		}
 		traversal_DFS_recursion2(graph, closeNode->vertex_id, data, offset);
@@ -138,10 +190,10 @@ void	initialize_visit(t_graph *undirect)
 	}
 }
 
-int	find_x_max(t_coordinate *coor, int num_point)
+double	find_x_max(t_coordinate *coor, int num_point)
 {
 	int	index;
-	int	max;
+	double	max;
 
 	index = 0;
 	max = -2147483648;
@@ -154,10 +206,10 @@ int	find_x_max(t_coordinate *coor, int num_point)
 	return (max);
 }
 
-int	find_y_min(t_coordinate *coor, int num_point)
+double	find_y_min(t_coordinate *coor, int num_point)
 {
 	int	index;
-	int	min;
+	double	min;
 
 	index = 0;
 	min = 2147483647;
@@ -170,10 +222,10 @@ int	find_y_min(t_coordinate *coor, int num_point)
 	return (min);
 }
 
-int	find_x_min(t_coordinate *coor, int num_point)
+double	find_x_min(t_coordinate *coor, int num_point)
 {
 	int	index;
-	int	min;
+	double	min;
 
 	index = 0;
 	min = 2147483647;
@@ -186,10 +238,10 @@ int	find_x_min(t_coordinate *coor, int num_point)
 	return (min);
 }
 
-int	find_y_max(t_coordinate *coor, int num_point)
+double	find_y_max(t_coordinate *coor, int num_point)
 {
 	int	index;
-	int	max;
+	double	max;
 
 	index = 0;
 	max = -2147483648;
@@ -305,7 +357,7 @@ int main(int argc, char **argv)
 	t_offset			offset;
 	char				*filename;
 	double				z_scale;
-	clock_t	start, end, sum;
+	clock_t	start, end, sum = 0;
 	t_map				map;
 
 	filename = argv[1];
@@ -320,7 +372,7 @@ int main(int argc, char **argv)
 		exit(1);
 
 	}
-	int	fd2 = open(filename, O_RDONLY);
+	//int	fd2 = open(filename, O_RDONLY);
 	save = 0;
 	coor = (t_coordinate *)ft_calloc(10000000, sizeof(t_coordinate));
 	if (!coor)
@@ -329,13 +381,16 @@ int main(int argc, char **argv)
 	start = clock();
 	//read_map(fd, &save, &map);
 	if (read_map2(fd, coor, &map) == -1)
+	{
+		perror("failed to read map");
 		return (1);
+	}
+	close(fd);
 	//int	point_per_line2 = read_map2(fd2, coor2, &map);
 	//printf("22 %d\n", point_per_line2);
 	end = clock();
 	sum += (end - start);
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	close(fd);
 	start = clock();
 	//num_point = count_size(save);
 	num_point = map.size;
@@ -381,7 +436,7 @@ int main(int argc, char **argv)
 	end = clock();
 	printf("find screen width :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	screen_height = abs(find_y_min(coor, num_point)) + abs(find_y_max(coor, num_point));
+	screen_height = fabs(find_y_min(coor, num_point)) + fabs(find_y_max(coor, num_point));
 	end = clock();
 	printf("find screen height :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	z_scale = 0;
@@ -393,6 +448,7 @@ int main(int argc, char **argv)
 		start = clock();
 		resize(coor, num_point, z_scale);
 		end = clock();
+		screen_height = MAX_SCREEN_HEIGHT;
 		printf("resize y :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
 	if (screen_width >= MAX_SCREEN_WIDTH)
@@ -401,23 +457,34 @@ int main(int argc, char **argv)
 		start = clock();
 		resize2(coor, num_point, z_scale);
 		end = clock();
+		screen_width = MAX_SCREEN_WIDTH;
 		printf("resize x :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
-	offset.x = abs(find_x_max(coor, num_point));
-	offset.y = abs(find_y_min(coor, num_point));
-	img.img = mlx_new_image(mlx, 3000,3000);
+	mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
+	printf("a\n");
+	offset.x = fabs(find_x_max(coor, num_point));
+	offset.y = fabs(find_y_min(coor, num_point));
+	printf("offset y : %f\n", offset.y);
+	printf("b\n");
+	img.img = mlx_new_image(mlx, screen_width, screen_height);
+	printf("c\n");
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
+	printf("d\n");
 	start = clock();
 	traversal_DFS_recursion2(undirect, 0, &img, offset);
 	//traversal_DFS_recursion2(undirect2, 0, &img, offset);
 	end = clock();
 	printf("traversal :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	if (screen_width >= MAX_SCREEN_WIDTH)
+	/*if (screen_width >= MAX_SCREEN_WIDTH)
 		screen_width = MAX_SCREEN_WIDTH;
 	if (screen_height >= MAX_SCREEN_HEIGHT)
-		screen_height = MAX_SCREEN_HEIGHT;
-	mlx_win = mlx_new_window(mlx, 3000, 3000, "fdf");
+		screen_height = MAX_SCREEN_HEIGHT;*/
+	printf("e\n");
+	//mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
+	printf("f\n");
+	//close(fd);
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
+	printf("g\n");
 	deleteLinkedGraph(undirect);
 	mlx_hook(mlx_win, X_EVENT_KEY_PRESS, 0, &key_press, 0);
 	mlx_loop(mlx);

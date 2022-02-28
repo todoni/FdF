@@ -138,7 +138,7 @@ int add_vertex(t_graph* graph, int vertex_id, t_coordinate *coor)
 	ptr = graph->edge[vertex_id];
 	ptr->screen_x = &coor[vertex_id].screen_x;
 	ptr->screen_y = &coor[vertex_id].screen_y;
-	ptr->visible = &coor[vertex_id].visible;
+	ptr->color = coor[vertex_id].color;
 	return SUCCESS;
 }
 
@@ -161,8 +161,8 @@ int add_edge(t_graph* graph, int from_vertex_id, int to_vertex_id, t_coordinate 
 	tmp->vertex_id = to_vertex_id;
 	tmp->screen_x = &coor[to_vertex_id].screen_x;
 	tmp->screen_y = &coor[to_vertex_id].screen_y;
-	tmp->visible = &coor[to_vertex_id].visible;
-	//tmp->color = coor[to_vertex_id].color;
+	//tmp->visible = &coor[to_vertex_id].visible;
+	tmp->color = coor[to_vertex_id].color;
 	t_node	*ptr;
 	ptr = graph->edge[from_vertex_id];
 	//ptr->screen_x = &coor[from_vertex_id].screen_x;

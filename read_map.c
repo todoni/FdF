@@ -16,6 +16,7 @@ int	read_map(int fd, t_coordinate_list **save, t_map *map)
 	t_coordinate_list *move;
 	t_coordinate	*block;
 	int	index;
+	char	**tmp_color;
 
 	gnl_return_val = 1;
 	num_points = 0;
@@ -39,8 +40,11 @@ int	read_map(int fd, t_coordinate_list **save, t_map *map)
 			move->block[index].x = row;
 			move->block[index].y = ft_atoi(words[i]);
 			move->block[index].z = i;
-			move->block[index].color = ft_split(words[i],',')[1];
-
+			tmp_color = ft_split(words[i], ',');
+			move->block[index].color = ft_strdup(tmp_color[1]);
+			free(tmp_color[0]);
+			free(tmp_color[1]);
+			free(tmp_color);
 			//move->x = row;
 			//move->y = ft_atoi(words[i]);
 			//move->z = i;
@@ -86,6 +90,7 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 	{
 		gnl_return_val = get_next_line(fd, &line);
 		words = ft_split(line, ' ');
+		free(line);
 		num_per_line = i;
 		i = 0;
 		while (words[i])
@@ -93,10 +98,12 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 			save[num_points].x = row;
 			save[num_points].y = ft_atoi(words[i]);
 			save[num_points].z = i;
-			//color = ft_split(words[i], ',');
-			//save[num_points].color = color[1];
+			color = ft_split(words[i], ',');
+			save[num_points].color = ft_strdup(color[1]);
 			//printf("readmap : %d %d %d\n", save[i].x, save[i].y, save[i].z);
-			//free(color[0]);
+			free(color[0]);
+			free(color[1]);
+			free(color);
 			free(words[i]);
 			i++;
 			num_points++;
