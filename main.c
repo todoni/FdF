@@ -448,7 +448,7 @@ int main(int argc, char **argv)
 		start = clock();
 		resize(coor, num_point, z_scale);
 		end = clock();
-		screen_height = MAX_SCREEN_HEIGHT;
+		//screen_height = MAX_SCREEN_HEIGHT;
 		printf("resize y :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
 	if (screen_width >= MAX_SCREEN_WIDTH)
@@ -457,10 +457,9 @@ int main(int argc, char **argv)
 		start = clock();
 		resize2(coor, num_point, z_scale);
 		end = clock();
-		screen_width = MAX_SCREEN_WIDTH;
+		//screen_width = MAX_SCREEN_WIDTH;
 		printf("resize x :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
-	mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
 	printf("a\n");
 	offset.x = fabs(find_x_max(coor, num_point));
 	offset.y = fabs(find_y_min(coor, num_point));
@@ -475,12 +474,12 @@ int main(int argc, char **argv)
 	//traversal_DFS_recursion2(undirect2, 0, &img, offset);
 	end = clock();
 	printf("traversal :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	/*if (screen_width >= MAX_SCREEN_WIDTH)
+	if (screen_width >= MAX_SCREEN_WIDTH)
 		screen_width = MAX_SCREEN_WIDTH;
 	if (screen_height >= MAX_SCREEN_HEIGHT)
-		screen_height = MAX_SCREEN_HEIGHT;*/
+		screen_height = MAX_SCREEN_HEIGHT;
 	printf("e\n");
-	//mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
+	mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
 	printf("f\n");
 	//close(fd);
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);

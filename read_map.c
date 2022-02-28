@@ -99,7 +99,8 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 			save[num_points].y = ft_atoi(words[i]);
 			save[num_points].z = i;
 			color = ft_split(words[i], ',');
-			save[num_points].color = ft_strdup(color[1]);
+			if (color[1])
+				save[num_points].color = ft_strdup(color[1]);
 			//printf("readmap : %d %d %d\n", save[i].x, save[i].y, save[i].z);
 			free(color[0]);
 			free(color[1]);
