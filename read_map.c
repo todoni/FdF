@@ -70,7 +70,7 @@ int	read_map(int fd, t_coordinate_list **save, t_map *map)
 	return (1);
 }
 
-int	read_map2(int fd, t_coordinate *save, t_map *map)
+int	read_map1(int fd, t_map *map)
 {
 	char	*line;
 	char	**words;
@@ -79,8 +79,6 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 	int		num_per_line;
 	int 	row;
 	int		i;
-	char	**color;
-	t_coordinate_list *move;
 
 	gnl_return_val = 1;
 	num_points = 0;
@@ -90,6 +88,54 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 	{
 		gnl_return_val = get_next_line(fd, &line);
 		words = ft_split(line, ' ');
+		if (!words || gnl_return_val == -1)
+			return (-1);
+		if (*line)
+			row++;
+		free(line);
+		num_per_line = i;
+		i = 0;
+		while (words[i])
+		{
+			free(words[i]);
+			i++;
+			num_points++;
+		}
+		free(words);
+	}
+	map->size = num_points;
+	map->column = num_per_line;
+	map->row = row;
+	if (row* num_per_line != num_points)
+	{
+		perror("Invalid Map.");
+		exit(1);
+	}
+	return (gnl_return_val);
+}
+
+
+int	read_map2(int fd, t_coordinate *save)
+{
+	char	*line;
+	char	**words;
+	int		gnl_return_val;
+	int		num_points;
+	int		num_per_line;
+	int 	row;
+	int		i;
+	char	**color;
+
+	gnl_return_val = 1;
+	num_points = 0;
+	num_per_line = 0;
+	row = 0;
+	while (gnl_return_val)
+	{
+		gnl_return_val = get_next_line(fd, &line);
+		words = ft_split(line, ' ');
+		if (!words)
+			return (-1);
 		free(line);
 		num_per_line = i;
 		i = 0;
@@ -99,9 +145,10 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 			save[num_points].y = ft_atoi(words[i]);
 			save[num_points].z = i;
 			color = ft_split(words[i], ',');
+			if (!color)
+				return (-1);
 			if (color[1])
 				save[num_points].color = ft_strdup(color[1]);
-			//printf("readmap : %d %d %d\n", save[i].x, save[i].y, save[i].z);
 			free(color[0]);
 			free(color[1]);
 			free(color);
@@ -112,10 +159,7 @@ int	read_map2(int fd, t_coordinate *save, t_map *map)
 		free(words);
 		row++;
 	}
-	map->size = num_points;
-	map->column = num_per_line;
-	map->row = row;
-	return (num_per_line);
+	return (0);
 }
 
 

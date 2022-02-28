@@ -74,7 +74,8 @@ int 	is_vertex_valid(t_graph *graph, int vertex_id);
 void	*ft_memset(void *b, int c, size_t len);
 void	*ft_calloc(size_t count, size_t len);
 int		read_map(int fd, t_coordinate_list **save, t_map *map);
-int		read_map2(int fd, t_coordinate *save, t_map *map);
+int		read_map1(int fd, t_map *map);
+int		read_map2(int fd, t_coordinate *save);
 void	put_map(t_coordinate_list *coor_list, t_coordinate **coor);
 void	deleteLinkedGraph(t_graph *pGraph);
 

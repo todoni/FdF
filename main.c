@@ -336,6 +336,7 @@ int main(int argc, char **argv)
 	t_graph				*undirect2;
 	int					num_point;
 	int					fd;
+	int					fd2;
 	int					point_per_line;
 	t_coordinate		*coor;
 	t_coordinate		*coor2;
@@ -354,48 +355,43 @@ int main(int argc, char **argv)
 
 	filename = argv[1];
 	fd = open(filename, O_RDONLY);
-	if (fd == -1)
+	fd2 = open(filename, O_RDONLY);
+	if (fd == -1 || fd2 == -1)
 	{
 		perror(filename);
 		exit(1);
 
 	}
 	save = 0;
-	coor = (t_coordinate *)ft_calloc(10000000, sizeof(t_coordinate));
-	if (!coor)
-		return (1);
-	start = clock();
-	if (read_map2(fd, coor, &map) == -1)
+	if (read_map1(fd, &map) == -1)
 	{
-		perror("failed to read map");
-		return (1);
+		perror("failed to read map.");
+		exit(1);
 	}
 	close(fd);
+	coor = ft_calloc(map.size, sizeof(t_coordinate));
+	if (!coor)
+	{
+		perror("Memory allocation failed.");
+		exit(1);
+	}
+	start = clock();
+	if (read_map2(fd2, coor) == -1)
+	{
+		perror("failed to read map.");
+		exit(1);
+	}
+	close(fd2);
 	end = clock();
 	sum += (end - start);
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	start = clock();
-	num_point = map.size;
-	point_per_line = map.column;
-	printf("%d %d \n", point_per_line, num_point);
-	end = clock();
-	sum += (end - start);
-	printf("count list size :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	start = clock();
-	end = clock();
-	sum += (end - start);
-	printf("calloc coor :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	start = clock();
-	end = clock();
-	sum += (end - start);
-	printf("give value to coordinate :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	printf("time elasped: %f\n", (float)sum / CLOCKS_PER_SEC);
 	component.alpha = asin(tan(30 * M_PI / 180));
 	component.beta = 45 * M_PI / 180;
 
 	mlx = mlx_init();
 	start = clock();
-	undirect = create_graph(num_point);
+	undirect = create_graph(map.size);
 	end = clock();
 	printf("create graph :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
@@ -403,15 +399,15 @@ int main(int argc, char **argv)
 	end = clock();
 	printf("add edges :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	matrix_calc(coor, component, num_point, 20);
+	matrix_calc(coor, component, map.size, 20);
 	end = clock();
 	printf("translate coordinate :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	screen_width = find_x_max(coor, num_point);
+	screen_width = find_x_max(coor, map.size);
 	end = clock();
 	printf("find screen width :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	screen_height = fabs(find_y_min(coor, num_point)) + fabs(find_y_max(coor, num_point));
+	screen_height = fabs(find_y_min(coor, map.size)) + fabs(find_y_max(coor, map.size));
 	end = clock();
 	printf("find screen height :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	z_scale = 0;
@@ -419,7 +415,7 @@ int main(int argc, char **argv)
 	{
 		z_scale = MAX_SCREEN_HEIGHT / (double)screen_height;
 		start = clock();
-		resize(coor, num_point, z_scale);
+		resize(coor, map.size, z_scale);
 		end = clock();
 		printf("resize y :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
@@ -427,12 +423,12 @@ int main(int argc, char **argv)
 	{
 		z_scale = MAX_SCREEN_WIDTH / (double)screen_width;
 		start = clock();
-		resize2(coor, num_point, z_scale);
+		resize2(coor, map.size, z_scale);
 		end = clock();
 		printf("resize x :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
-	offset.x = fabs(find_x_max(coor, num_point));
-	offset.y = fabs(find_y_min(coor, num_point));
+	offset.x = fabs(find_x_max(coor, map.size));
+	offset.y = fabs(find_y_min(coor, map.size));
 	img.img = mlx_new_image(mlx, screen_width, screen_height);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
 	start = clock();
