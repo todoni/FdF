@@ -119,18 +119,10 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		color.delta_g /= pixels;
 		color.delta_b /= pixels;
 
-		//printf("delta color: %d\n", delta_g);
 		while (pixels)
 		{
 			colors = color.from_r + color.from_g + color.from_b;
 			my_mlx_pixel_put(data, round(x), offset.y + round(y), colors);
-			/*if (round(x) == 720 && round(y) <= -450)
-			{
-				
-				printf("%f %f\n", x, y);
-				printf("%f %f\n", round(x), round(y));
-				printf("%d %d\n\n", (int)x, (int)y);
-			}*/
     		x += delta_x;
     		y += delta_y;
 			color.from_r += color.delta_r << 16;
@@ -362,51 +354,38 @@ int main(int argc, char **argv)
 
 	filename = argv[1];
 	fd = open(filename, O_RDONLY);
-	//read(fd, filename, 1);
 	if (fd == -1)
 	{
 		perror(filename);
-		//write(2, filename, ft_strlen(filename));
-		//printf("%s\n", strerror(5));
-		//write(2, strerror(3), ft_strlen(strerror(3)));
 		exit(1);
 
 	}
-	//int	fd2 = open(filename, O_RDONLY);
 	save = 0;
 	coor = (t_coordinate *)ft_calloc(10000000, sizeof(t_coordinate));
 	if (!coor)
 		return (1);
-	//coor2 = (t_coordinate *)ft_calloc(10000000, sizeof(t_coordinate));
 	start = clock();
-	//read_map(fd, &save, &map);
 	if (read_map2(fd, coor, &map) == -1)
 	{
 		perror("failed to read map");
 		return (1);
 	}
 	close(fd);
-	//int	point_per_line2 = read_map2(fd2, coor2, &map);
-	//printf("22 %d\n", point_per_line2);
 	end = clock();
 	sum += (end - start);
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	//num_point = count_size(save);
 	num_point = map.size;
 	point_per_line = map.column;
-	//int	num_point2 = map.size;
 	printf("%d %d \n", point_per_line, num_point);
 	end = clock();
 	sum += (end - start);
 	printf("count list size :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	//coor = (t_coordinate *)ft_calloc(num_point, sizeof(t_coordinate));
 	end = clock();
 	sum += (end - start);
 	printf("calloc coor :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	//make_coor(coor, save, num_point);
 	end = clock();
 	sum += (end - start);
 	printf("give value to coordinate :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
@@ -417,20 +396,16 @@ int main(int argc, char **argv)
 	mlx = mlx_init();
 	start = clock();
 	undirect = create_graph(num_point);
-	//undirect2 = create_graph(num_point);
 	end = clock();
 	printf("create graph :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
 	connect_vertexes(undirect, map, coor);
-	//connect_vertexes(undirect2, point_per_line, num_point, coor2);
 	end = clock();
 	printf("add edges :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
 	matrix_calc(coor, component, num_point, 20);
-	//matrix_calc(coor2, component, num_point, 120);
 	end = clock();
 	printf("translate coordinate :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	//display_graph(undirect);
 	start = clock();
 	screen_width = find_x_max(coor, num_point);
 	end = clock();
@@ -442,13 +417,10 @@ int main(int argc, char **argv)
 	z_scale = 0;
 	if (screen_height >= MAX_SCREEN_HEIGHT)
 	{
-		printf("%d\n", screen_height);
 		z_scale = MAX_SCREEN_HEIGHT / (double)screen_height;
-		printf("%f\n", z_scale);
 		start = clock();
 		resize(coor, num_point, z_scale);
 		end = clock();
-		//screen_height = MAX_SCREEN_HEIGHT;
 		printf("resize y :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
 	if (screen_width >= MAX_SCREEN_WIDTH)
@@ -457,33 +429,22 @@ int main(int argc, char **argv)
 		start = clock();
 		resize2(coor, num_point, z_scale);
 		end = clock();
-		//screen_width = MAX_SCREEN_WIDTH;
 		printf("resize x :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
-	printf("a\n");
 	offset.x = fabs(find_x_max(coor, num_point));
 	offset.y = fabs(find_y_min(coor, num_point));
-	printf("offset y : %f\n", offset.y);
-	printf("b\n");
 	img.img = mlx_new_image(mlx, screen_width, screen_height);
-	printf("c\n");
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
-	printf("d\n");
 	start = clock();
 	traversal_DFS_recursion2(undirect, 0, &img, offset);
-	//traversal_DFS_recursion2(undirect2, 0, &img, offset);
 	end = clock();
 	printf("traversal :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	if (screen_width >= MAX_SCREEN_WIDTH)
 		screen_width = MAX_SCREEN_WIDTH;
 	if (screen_height >= MAX_SCREEN_HEIGHT)
 		screen_height = MAX_SCREEN_HEIGHT;
-	printf("e\n");
 	mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
-	printf("f\n");
-	//close(fd);
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
-	printf("g\n");
 	deleteLinkedGraph(undirect);
 	mlx_hook(mlx_win, X_EVENT_KEY_PRESS, 0, &key_press, 0);
 	mlx_loop(mlx);
