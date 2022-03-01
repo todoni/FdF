@@ -1,6 +1,6 @@
 #include "libft/get_next_line.h"
 #include "libft/libft.h"
-#include "../fdf_graph.h"
+#include "fdf_graph.h"
 #include <stdio.h>
 #include <fcntl.h>
 

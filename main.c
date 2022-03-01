@@ -1,6 +1,6 @@
 #include "fdf_graph.h"
 #include "libft/libft.h"
-#include "mlx.h"
+#include "minilibx_mms_20210621//mlx.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -63,13 +63,17 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 {
 	t_node	*closeNode;
 	int		scale;
-	double	x;
-	double	y;
+	int		x;
+	int		y;
 	int		pixels;
-	double	x_next;
-	double	y_next;
-	double	delta_x;
-	double	delta_y;
+	int		x_next;
+	int		y_next;
+	int		delta_x;
+	int		delta_y;
+	int		F;
+	int		dF1;
+	int		dF2;
+
 	t_color	color;
 	int		full_color_to;
 	int		full_color_from;
@@ -92,9 +96,13 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		y = *graph->edge[vertex_id]->screen_y;
 		x_next = *(closeNode->screen_x);
 		y_next = *(closeNode->screen_y);
-		delta_x = (x_next - x);
-		delta_y = (y_next - y);
+		delta_x = abs(x_next - x);
+		delta_y = abs(y_next - y);
 		pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+		F = 2 * delta_y - delta_x;
+		dF1 = 2 * delta_y;
+		dF2 = 2 * (delta_y - delta_x);
+
 		if (closeNode->color)
 		{
 			full_color_to = strtol(closeNode->color, NULL, 16);
@@ -113,21 +121,32 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		color.delta_g = (color.to_g >> 8) - (color.from_g >> 8);
 		color.delta_b = color.to_b - color.from_b;
 		
-		delta_x /= pixels;
-		delta_y /= pixels;
+		//delta_x /= pixels;
+		//delta_y /= pixels;
 		color.delta_r /= pixels;
 		color.delta_g /= pixels;
 		color.delta_b /= pixels;
 
-		while (pixels)
+		while (x <= x_next)
 		{
 			colors = color.from_r + color.from_g + color.from_b;
-			my_mlx_pixel_put(data, round(x), offset.y + round(y), colors);
-    		x += delta_x;
-    		y += delta_y;
+			my_mlx_pixel_put(data, x, offset.y + y, colors);
+			printf("F: %d dF1: %d dF2: %d\n", F, dF1, dF2);
+			printf("%d,%d -> %d,%d\n", x, y, x_next, y_next);
+			if (F < 0)
+				F += dF1;
+			else
+			{
+				if (y < y_next)
+					y++;
+				else
+					y--;
+				F += dF2;
+			}
 			color.from_r += color.delta_r << 16;
 			color.from_g += color.delta_g << 8;
 			color.from_b += color.delta_b;
+			x++;
 			pixels--;
 		}
 		traversal_DFS_recursion2(graph, closeNode->vertex_id, data, offset);
@@ -182,10 +201,10 @@ void	initialize_visit(t_graph *undirect)
 	}
 }
 
-double	find_x_max(t_coordinate *coor, int num_point)
+int	find_x_max(t_coordinate *coor, int num_point)
 {
 	int	index;
-	double	max;
+	int	max;
 
 	index = 0;
 	max = -2147483648;
@@ -198,10 +217,10 @@ double	find_x_max(t_coordinate *coor, int num_point)
 	return (max);
 }
 
-double	find_y_min(t_coordinate *coor, int num_point)
+int	find_y_min(t_coordinate *coor, int num_point)
 {
 	int	index;
-	double	min;
+	int	min;
 
 	index = 0;
 	min = 2147483647;
@@ -214,10 +233,10 @@ double	find_y_min(t_coordinate *coor, int num_point)
 	return (min);
 }
 
-double	find_x_min(t_coordinate *coor, int num_point)
+int	find_x_min(t_coordinate *coor, int num_point)
 {
 	int	index;
-	double	min;
+	int	min;
 
 	index = 0;
 	min = 2147483647;
@@ -230,10 +249,10 @@ double	find_x_min(t_coordinate *coor, int num_point)
 	return (min);
 }
 
-double	find_y_max(t_coordinate *coor, int num_point)
+int	find_y_max(t_coordinate *coor, int num_point)
 {
 	int	index;
-	double	max;
+	int	max;
 
 	index = 0;
 	max = -2147483648;
@@ -354,6 +373,7 @@ int main(int argc, char **argv)
 	t_map				map;
 
 	filename = argv[1];
+	start = clock();
 	fd = open(filename, O_RDONLY);
 	fd2 = open(filename, O_RDONLY);
 	if (fd == -1 || fd2 == -1)
@@ -385,7 +405,7 @@ int main(int argc, char **argv)
 	end = clock();
 	sum += (end - start);
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
-	printf("time elasped: %f\n", (float)sum / CLOCKS_PER_SEC);
+	printf("map reading time elasped: %f\n", (float)sum / CLOCKS_PER_SEC);
 	component.alpha = asin(tan(30 * M_PI / 180));
 	component.beta = 45 * M_PI / 180;
 
@@ -407,10 +427,11 @@ int main(int argc, char **argv)
 	end = clock();
 	printf("find screen width :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	start = clock();
-	screen_height = fabs(find_y_min(coor, map.size)) + fabs(find_y_max(coor, map.size));
+	screen_height = abs(find_y_min(coor, map.size)) + abs(find_y_max(coor, map.size));
 	end = clock();
 	printf("find screen height :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	z_scale = 0;
+	printf("width : %d, height : %d\n", screen_width, screen_height);
 	if (screen_height >= MAX_SCREEN_HEIGHT)
 	{
 		z_scale = MAX_SCREEN_HEIGHT / (double)screen_height;
@@ -427,8 +448,9 @@ int main(int argc, char **argv)
 		end = clock();
 		printf("resize x :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	}
-	offset.x = fabs(find_x_max(coor, map.size));
-	offset.y = fabs(find_y_min(coor, map.size));
+	offset.x = abs(find_x_max(coor, map.size));
+	offset.y = abs(find_y_min(coor, map.size));
+	printf("width : %d, height : %d\n", screen_width, screen_height);
 	img.img = mlx_new_image(mlx, screen_width, screen_height);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
 	start = clock();
@@ -439,6 +461,7 @@ int main(int argc, char **argv)
 		screen_width = MAX_SCREEN_WIDTH;
 	if (screen_height >= MAX_SCREEN_HEIGHT)
 		screen_height = MAX_SCREEN_HEIGHT;
+	printf("width : %d, height : %d\n", screen_width, screen_height);
 	mlx_win = mlx_new_window(mlx, screen_width, screen_height, "fdf");
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
 	deleteLinkedGraph(undirect);

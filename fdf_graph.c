@@ -100,7 +100,7 @@ void display_graph(t_graph* graph)
         while (tmp && tmp->screen_x)
         {
             //printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
-            printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
+            //printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
             tmp = tmp->next;
 			if (tmp) printf(" -> ");
         }

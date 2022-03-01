@@ -13,8 +13,8 @@ typedef struct	s_coordinate
 	double	new_x;
 	double	new_y;
 	double	new_z;
-	double	screen_x;
-	double	screen_y;
+	int		screen_x;
+	int		screen_y;
 	char	*color;
 	int		visible;
 }				t_coordinate;
@@ -40,8 +40,8 @@ typedef struct	s_node
 {
 	int		vertex_id;
 	int		visited;
-	double	*screen_x;
-	double	*screen_y;
+	int		*screen_x;
+	int		*screen_y;
 	int		*visible;
 	char	*color;
 	struct s_node *next;
