@@ -71,8 +71,12 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 	int		delta_x;
 	int		delta_y;
 	int		F;
-	int		dF1;
-	int		dF2;
+	int		dxF1;
+	int		dxF2;
+	int		dyF1;
+	int		dyF2;
+	int		add_y;
+	int		steps = 0;
 
 	t_color	color;
 	int		full_color_to;
@@ -99,9 +103,13 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		delta_x = abs(x_next - x);
 		delta_y = abs(y_next - y);
 		pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+		if (pixels == 0)
+			pixels = 1;
 		F = 2 * delta_y - delta_x;
-		dF1 = 2 * delta_y;
-		dF2 = 2 * (delta_y - delta_x);
+		dxF1 = 2 * delta_y;
+		dxF2 = 2 * (delta_y - delta_x);
+		dyF1 = 2 * delta_x;
+		dyF2 = 2 * (delta_x - delta_y);
 
 		if (closeNode->color)
 		{
@@ -126,28 +134,59 @@ void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_off
 		color.delta_r /= pixels;
 		color.delta_g /= pixels;
 		color.delta_b /= pixels;
-
-		while (x <= x_next)
+		
+		if (delta_x >= delta_y)
 		{
-			colors = color.from_r + color.from_g + color.from_b;
-			my_mlx_pixel_put(data, x, offset.y + y, colors);
-			printf("F: %d dF1: %d dF2: %d\n", F, dF1, dF2);
-			printf("%d,%d -> %d,%d\n", x, y, x_next, y_next);
-			if (F < 0)
-				F += dF1;
-			else
+			while (x <= x_next)
 			{
-				if (y < y_next)
-					y++;
+				colors = color.from_r + color.from_g + color.from_b;
+				my_mlx_pixel_put(data, x, offset.y + y, colors);
+				//printf("F: %d\n", F);
+				//printf("%d,%d -> %d,%d\n", x, y, x_next, y_next);
+				if (F < 0)
+					F += dxF1;
 				else
-					y--;
-				F += dF2;
+				{
+					if (y < y_next)
+						y++;
+					else
+						y--;
+					F += dxF2;
+				}
+				color.from_r += color.delta_r << 16;
+				color.from_g += color.delta_g << 8;
+				color.from_b += color.delta_b;
+				x++;
+				pixels--;
 			}
-			color.from_r += color.delta_r << 16;
-			color.from_g += color.delta_g << 8;
-			color.from_b += color.delta_b;
-			x++;
-			pixels--;
+		}
+		else
+		{
+			if (y > y_next)
+				add_y = -1;
+			else
+				add_y = 1;
+			steps = 0;
+			while (steps < delta_y)
+			{
+				colors = color.from_r + color.from_g + color.from_b;
+				my_mlx_pixel_put(data, x, offset.y + y, colors);
+				//printf("F: %d\n", F);
+				//printf("%d,%d -> %d,%d\n", x, y, x_next, y_next);
+				if (F < 0)
+					F += dyF1;
+				else
+				{
+					x++;
+					F += dyF2;
+				}
+				color.from_r += color.delta_r << 16;
+				color.from_g += color.delta_g << 8;
+				color.from_b += color.delta_b;
+				y += add_y;
+				steps++;
+				pixels--;
+			}
 		}
 		traversal_DFS_recursion2(graph, closeNode->vertex_id, data, offset);
 		closeNode = closeNode->next;
@@ -285,6 +324,8 @@ void	matrix_calc(t_coordinate *coor, t_matrix component, int	size, int distance)
 		coor[index].screen_y = (sin(component.alpha) * sin(component.beta) * coor[index].x \
 										  + cos(component.alpha) * coor[index].y \
 							   - (sin(component.alpha) * cos(component.beta) * coor[index].z));
+		//printf("x:%d y:%d z:%d\n", coor[index].x, coor[index].y, coor[index].z);
+		//printf("x:%d y:%d\n", coor[index].screen_x, coor[index].screen_y);
 		index++;
 	}
 }
@@ -410,6 +451,8 @@ int main(int argc, char **argv)
 	component.beta = 45 * M_PI / 180;
 
 	mlx = mlx_init();
+	screen_width = 0;
+	screen_height = 0;
 	start = clock();
 	undirect = create_graph(map.size);
 	end = clock();

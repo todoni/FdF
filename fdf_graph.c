@@ -71,7 +71,7 @@ t_graph* create_graph(int max_vertex_count)
 	tmp->current_vertex_count = 0;
 	tmp_list = create_list(max_vertex_count);
 	tmp->edge = tmp_list;
-	tmp_vertex = ft_calloc(max_vertex_count, sizeof(int));
+	tmp_vertex = ft_calloc(max_vertex_count, sizeof(int) + 1);
 	if (!tmp_vertex)
 		return 0;
 	tmp->vertex = tmp_vertex;
