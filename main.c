@@ -9,7 +9,7 @@
 
 
 #define VISITED 1
-#define ZOOM_DEFAULT 2
+#define ZOOM_DEFAULT 20
 
 
 typedef struct	s_data {
@@ -473,7 +473,7 @@ int main(int argc, char **argv)
 	sum += (end - start);
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	printf("map reading time elasped: %f\n", (float)sum / CLOCKS_PER_SEC);
-	component.alpha = asin(tan(30 * M_PI / 180));
+	component.alpha = asin(tan(26.565 * M_PI / 180));
 	component.beta = 45 * M_PI / 180;
 
 	mlx = mlx_init();
