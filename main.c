@@ -343,12 +343,14 @@ void	matrix_calc(t_coordinate *coor, t_matrix component, int	size, int distance)
 	while (index < size)
 	{
 		coor[index].x *= ZOOM_DEFAULT;
-		coor[index].y *= -ZOOM_DEFAULT;
+		coor[index].y *= ZOOM_DEFAULT;
 		coor[index].z *= ZOOM_DEFAULT;
-		coor[index].screen_x = (cos(component.beta) * coor[index].x + sin(component.beta) * coor[index].z);
-		coor[index].screen_y = (sin(component.alpha) * sin(component.beta) * coor[index].x \
+		coor[index].screen_x = (cos(component.beta) * coor[index].x - sin(component.beta) * coor[index].z);
+		coor[index].screen_y = -(sin(component.alpha) * sin(component.beta) * coor[index].x \
 										  + cos(component.alpha) * coor[index].y \
-							   - (sin(component.alpha) * cos(component.beta) * coor[index].z));
+							   + (sin(component.alpha) * cos(component.beta) * coor[index].z));
+		//coor[index].screen_x = (cos(component.beta) * coor[index].x + sin(component.alpha) * sin(component.beta) * coor[index].y - sin(component.beta) * cos(component.beta)* coor[index].z);
+		//coor[index].screen_y = sin(component.alpha) * coor[index].z + cos(component.alpha) * coor[index].y;
 		//printf("x:%d y:%d z:%d\n", coor[index].x, coor[index].y, coor[index].z);
 		//printf("x:%d y:%d\n", coor[index].screen_x, coor[index].screen_y);
 		index++;
@@ -474,7 +476,7 @@ int main(int argc, char **argv)
 	printf("read_map :%f\n", (float)(end - start) / CLOCKS_PER_SEC);
 	printf("map reading time elasped: %f\n", (float)sum / CLOCKS_PER_SEC);
 	component.alpha = asin(tan(26.565 * M_PI / 180));
-	component.beta = 45 * M_PI / 180;
+	component.beta = -45 * M_PI / 180;
 
 	mlx = mlx_init();
 	screen_width = 0;
