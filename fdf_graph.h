@@ -78,6 +78,7 @@ int		read_map1(int fd, t_map *map);
 int		read_map2(int fd, t_coordinate *save);
 void	put_map(t_coordinate_list *coor_list, t_coordinate **coor);
 void	deleteLinkedGraph(t_graph *pGraph);
+void	terminate(char *error_message);
 
 #endif
 

@@ -422,6 +422,7 @@ void	connect_vertexes(t_graph *undirect, t_map map, t_coordinate *coor)
 }
 
 #include <errno.h>
+#include "error_messages.h"
 
 int main(int argc, char **argv)
 {
@@ -441,32 +442,21 @@ int main(int argc, char **argv)
 	double				zoom;
 	t_map				map;
 
+	if (argc != 2)
+		terminate(ERR_ARGUMENTS);
 	filename = argv[1];
 	fd = open(filename, O_RDONLY);
 	fd2 = open(filename, O_RDONLY);
 	if (fd == -1 || fd2 == -1)
-	{
-		perror(filename);
-		exit(1);
-
-	}
+		terminate(filename);
 	if (read_map1(fd, &map) == -1)
-	{
-		perror("failed to read map.");
-		exit(1);
-	}
+		terminate(ERR_MAP_READING);
 	close(fd);
 	coor = ft_calloc(map.size, sizeof(t_coordinate));
 	if (!coor)
-	{
-		perror("Memory allocation failed.");
-		exit(1);
-	}
+		terminate(ERR_MEMORY_ALLOCATION);
 	if (read_map2(fd2, coor) == -1)
-	{
-		perror("failed to read map.");
-		exit(1);
-	}
+		terminate(ERR_MAP_READING);
 	close(fd2);
 	component.alpha = asin(tan(26.565 * M_PI / 180));
 	component.beta = -45 * M_PI / 180;
