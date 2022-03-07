@@ -71,7 +71,7 @@ t_graph* create_graph(int max_vertex_count)
 	tmp->current_vertex_count = 0;
 	tmp_list = create_list(max_vertex_count);
 	tmp->edge = tmp_list;
-	tmp_vertex = ft_calloc(max_vertex_count, sizeof(int) + 1);
+	tmp_vertex = ft_calloc(max_vertex_count, sizeof(int));
 	if (!tmp_vertex)
 		return 0;
 	tmp->vertex = tmp_vertex;
@@ -99,7 +99,7 @@ void display_graph(t_graph* graph)
 		else	printf("\e[31m(X)");
         while (tmp && tmp->screen_x)
         {
-            //printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
+            printf("%d(%d,%d)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
             //printf("%d(%2f,%2f)\e[0m", tmp->vertex_id, *(tmp->screen_x), *(tmp->screen_y));
             tmp = tmp->next;
 			if (tmp) printf(" -> ");

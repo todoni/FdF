@@ -1,179 +1,142 @@
 #include "libft/get_next_line.h"
-#include "libft/libft.h"
+#include "libft.h"
 #include "fdf_graph.h"
 #include <stdio.h>
 #include <fcntl.h>
+#include "error_messages.h"
 
-int	read_map(int fd, t_coordinate_list **save, t_map *map)
+t_list	*read_map(int fd, t_map *map)
 {
 	char	*line;
-	char	**words;
+	char	**block;
 	int		gnl_return_val;
-	int		num_points;
-	int		num_per_line;
-	int 	row;
-	int		i;
-	t_coordinate_list *move;
-	t_coordinate	*block;
-	int	index;
-	char	**tmp_color;
+	t_list	*list_block;
+	t_list	*tmp;
 
 	gnl_return_val = 1;
-	num_points = 0;
-	num_per_line = 0;
-	row = 0;
-	index = 0;
-	move = ft_calloc(1, sizeof(t_coordinate_list));
-	move->block = ft_calloc(BUFFER_SIZE, sizeof(t_coordinate));
-	if (move == NULL)
-		return (-1);
-	*save = move;
+	list_block = 0;
 	while (gnl_return_val)
 	{
 		gnl_return_val = get_next_line(fd, &line);
-		words = ft_split(line, ' ');
-
-		num_per_line = i;
-		i = 0;
-		while (words[i])
-		{
-			move->block[index].x = row;
-			move->block[index].y = ft_atoi(words[i]);
-			move->block[index].z = i;
-			tmp_color = ft_split(words[i], ',');
-			move->block[index].color = ft_strdup(tmp_color[1]);
-			free(tmp_color[0]);
-			free(tmp_color[1]);
-			free(tmp_color);
-			//move->x = row;
-			//move->y = ft_atoi(words[i]);
-			//move->z = i;
-			//move->color = ft_split(words[i], ',')[1];
-			i++;
-			num_points++;
-			index++;
-			if (num_points % BUFFER_SIZE == 0)
-			{
-				move->block = ft_calloc(BUFFER_SIZE, sizeof(t_coordinate));
-				if (move->block == NULL)
-					return (-1);
-				move->next = *save;
-				*save = move;
-				index = 0;
-			}
-		}
-		//move = ft_calloc(1, sizeof(t_coordinate_list));
-		row++;
-	}
-	map->column = num_per_line;
-	map->size = num_points;
-	return (1);
-}
-
-int	read_map1(int fd, t_map *map)
-{
-	char	*line;
-	char	**words;
-	int		gnl_return_val;
-	int		num_points;
-	int		num_per_line;
-	int 	row;
-	int		i;
-
-	gnl_return_val = 1;
-	num_points = 0;
-	num_per_line = 0;
-	row = 0;
-	while (gnl_return_val)
-	{
-		gnl_return_val = get_next_line(fd, &line);
-		words = ft_split(line, ' ');
-		if (!words || gnl_return_val == -1)
-			return (-1);
+		block = ft_split(line, ' ');
 		if (*line)
-			row++;
+			map->row++;
 		free(line);
-		num_per_line = i;
-		i = 0;
-		while (words[i])
-		{
-			free(words[i]);
-			i++;
-			num_points++;
-		}
-		free(words);
+		tmp = ft_lstnew(block);
+		if (!block || !tmp || gnl_return_val == -1)
+			terminate(ERR_MAP_READING);
+		ft_lstadd_back(&list_block, tmp);
 	}
-	map->size = num_points;
-	map->column = num_per_line;
-	map->row = row;
-	if (row* num_per_line != num_points)
-	{
-		perror("Invalid Map.");
-		exit(1);
-	}
-	return (gnl_return_val);
+	return (list_block);
 }
 
-
-int	read_map2(int fd, t_coordinate *save)
+int	get_map_size(t_list *lst, t_map *map)
 {
-	char	*line;
-	char	**words;
-	int		gnl_return_val;
-	int		num_points;
-	int		num_per_line;
-	int 	row;
 	int		i;
-	char	**color;
+	char 	**block;
 
-	gnl_return_val = 1;
-	num_points = 0;
-	num_per_line = 0;
-	row = 0;
-	while (gnl_return_val)
+	i = 0;
+	while (lst)
 	{
-		gnl_return_val = get_next_line(fd, &line);
-		words = ft_split(line, ' ');
-		if (!words)
-			return (-1);
-		free(line);
-		num_per_line = i;
+		block = lst->content;
 		i = 0;
-		while (words[i])
+		while (block[i])
 		{
-			save[num_points].x = row;
-			save[num_points].y = ft_atoi(words[i]);
-			save[num_points].z = i;
-			color = ft_split(words[i], ',');
-			if (!color)
-				return (-1);
-			if (color[1])
-				save[num_points].color = ft_strdup(color[1]);
-			free(color[0]);
-			free(color[1]);
-			free(color);
-			free(words[i]);
 			i++;
-			num_points++;
+			map->size++;
 		}
-		free(words);
+		lst = lst->next;
+	}
+	if (map->size % map->row != 0)
+		terminate(ERR_MAP_INVALID);
+	map->column = map->size / map->row;
+	return (map->size);
+}
+
+void	jump_empty_coordinate(t_list **lst)
+{
+	char **block;
+
+	block = (*lst)->content;
+	if (!block[0])
+		*lst = (*lst)->next;
+}
+
+int	make_coordinate(t_list *lst, t_coordinate *coor)
+{
+	char			**block;
+	int				i;
+	int				j;
+	int				row;
+
+	j = 0;
+	row = 0;
+	jump_empty_coordinate(&lst);
+	while(lst)
+	{
+		block = lst->content;
+		i = 0;
+		while(block[i])
+		{
+			coor[j].x = row;
+			coor[j].y = ft_atoi(block[i]);
+			coor[j].z = i;
+			i++;
+			j++;
+		}
 		row++;
+		lst = lst->next;
 	}
 	return (0);
 }
 
-
-void	put_map(t_coordinate_list *coor_list, t_coordinate **coor)
+void	free_array(char **array)
 {
-	int		index;
+	int	i;
 
-	index = 0;
-	while (coor_list)
+	i = 0;
+	while (array[i])
 	{
-		coor[index]->x = coor_list->x;
-		coor[index]->y = coor_list->y;
-		coor[index]->z = coor_list->z;
-		coor_list = coor_list->next;
-		index++;
+		free(array[i]);
+		i++;
 	}
+	free(array);
+}
+
+char	*extract_color(char *str)
+{
+	char	**color;
+	char	*target;
+
+	target = 0;
+	color = ft_split(str, ',');
+	if (!color)
+		terminate(ERR_MAP_READING);
+	if (color[1])
+		target = ft_strdup(color[1]);
+	free_array(color);
+	return (target);
+}
+
+int	get_map_color(t_list *lst, t_coordinate *coor)
+{
+	char	**block;
+	int		i;
+	int		j;
+
+	j = 0;
+	while (lst)
+	{
+		block = lst->content;
+		i = 0;
+		while (block[i])
+		{
+			coor[j].color = extract_color(block[i]);
+			i++;
+			j++;
+		}
+		lst = lst->next;
+		free_array(block);
+	}
+	return (0);
 }

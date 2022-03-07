@@ -4,6 +4,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
+# include "libft/libft.h"
 
 typedef struct	s_coordinate
 {
@@ -63,6 +64,11 @@ typedef struct	s_map
 	int	size;
 }				t_map;
 
+typedef	struct	s_block
+{
+	char	**coordinate;
+	int		number;
+}				t_block;
 
 t_graph	*create_graph(int max_vertex_count);
 
@@ -73,12 +79,12 @@ void	display_graph(t_graph *graph);
 int 	is_vertex_valid(t_graph *graph, int vertex_id);
 void	*ft_memset(void *b, int c, size_t len);
 void	*ft_calloc(size_t count, size_t len);
-int		read_map(int fd, t_coordinate_list **save, t_map *map);
-int		read_map1(int fd, t_map *map);
-int		read_map2(int fd, t_coordinate *save);
-void	put_map(t_coordinate_list *coor_list, t_coordinate **coor);
 void	deleteLinkedGraph(t_graph *pGraph);
 void	terminate(char *error_message);
+t_list	*read_map(int fd, t_map *map);
+int		get_map_size(t_list *lst, t_map *map);
+int		make_coordinate(t_list *lst, t_coordinate *coor);
+int		get_map_color(t_list *lst, t_coordinate *coor);
 
 #endif
 
