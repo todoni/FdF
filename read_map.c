@@ -18,9 +18,9 @@ t_list	*read_map(int fd, t_map *map)
 	while (gnl_return_val)
 	{
 		gnl_return_val = get_next_line(fd, &line);
-		block = ft_split(line, ' ');
 		if (*line)
 			map->row++;
+		block = ft_split(line, ' ');
 		free(line);
 		tmp = ft_lstnew(block);
 		if (!block || !tmp || gnl_return_val == -1)

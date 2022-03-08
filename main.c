@@ -11,11 +11,14 @@
 
 
 typedef struct	s_data {
+	void	*mlx;
+	void	*mlx_win;
 	void	*img;
 	char	*addr;
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
+	int		img_offset;
 }				t_data;
 
 typedef struct	s_matrix
@@ -43,120 +46,166 @@ typedef struct	s_offset
 	double	x;
 }				t_offset;
 
-typedef	struct	s_colors
+typedef	struct	s_color
 {
-	int	from_r;
-	int	from_g;
-	int	from_b;
-	int	to_r;
-	int	to_g;
-	int	to_b;
-	int	delta_r;
-	int	delta_g;
-	int	delta_b;
+	int	rgb;
+	int	r;
+	int	g;
+	int	b;
 }				t_color;
 
-
-void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data, t_offset offset)
+typedef struct	s_color_gradient
 {
-	t_node	*closeNode;
-	int		x;
-	int		y;
-	int		pixels;
-	int		x_next;
-	int		y_next;
-	int		delta_x;
-	int		delta_y;
-	int		add_x;
-	int		add_y;
-	int		err;
-	int		e2;
-	t_color	color;
-	int		full_color_to;
-	int		full_color_from;
-	int		colors;
-	int		sum_r;
-	int		sum_g;
-	int		sum_b;
+	int	from[3];
+	int	to[3];
+	int	delta[3];
+	int	sum[3];
+}				t_gradient;
 
-	//printf("%d\n", vertex_id);
-	if (graph->edge[vertex_id]->visited == VISITED)
+typedef struct	s_bresenham
+{
+	int	x;
+	int	y;
+	int	x_next;
+	int	y_next;
+	int	delta_x;
+	int	delta_y;
+	int	add_x;
+	int	add_y;
+	int	err;
+	int	e2;
+	int	distance;
+}				t_bresenham;
+
+void	init_color(t_gradient *dt)
+{
+	int	i;
+
+	i = 0;
+	while (i < 3)
+	{
+		dt->sum[i] = 0;
+		i++;
+	}
+	dt->from[0] = (0xFF0000 & 0b111111110000000000000000) >> 16;
+	dt->from[1] = (0xFF0000 & 0b000000001111111100000000) >> 8;
+	dt->from[2] = 0xFF0000 & 0b000000000000000011111111;
+	dt->to[0] = (0xFF0000 & 0b111111110000000000000000) >> 16;
+	dt->to[1] = (0xFF0000 & 0b000000001111111100000000) >> 8;
+	dt->to[2] = 0xFF0000 & 0b000000000000000011111111;
+}
+
+void	set_pixel_color(int *color, char *rgb)
+{
+	int	full_color;
+
+	full_color = strtol(rgb, NULL, 16);
+	color[0] = (full_color & 0b111111110000000000000000) >> 16;
+	color[1] = (full_color & 0b000000001111111100000000) >> 8;
+	color[2] = full_color & 0b000000000000000011111111;
+}
+
+int	ft_abs(int x)
+{
+	if (x > 0)
+		return (x);
+	return (-x);
+}
+
+void	init_bresenham_param(t_bresenham *bh, t_node *from, t_node *to)
+{
+	bh->x = *(from->screen_x);
+	bh->y = *(from->screen_y);
+	bh->x_next = *(to->screen_x);
+	bh->y_next = *(to->screen_y);
+	bh->delta_x = ft_abs(bh->x_next - bh->x);
+	bh->delta_y = ft_abs(bh->y_next - bh->y);
+	bh->distance = sqrt(bh->delta_x * bh->delta_x + bh->delta_y * bh->delta_y);
+	if (bh->distance == 0)
+		bh->distance = 1;
+}
+
+void	set_bresenham_param(t_bresenham *bh)
+{
+	bh->add_x = 1;
+	bh->add_y = 1;
+	bh->err = bh->delta_x / 2;
+	if (bh->x >= bh->x_next)
+		bh->add_x = -1;
+	if (bh->y >= bh->y_next)
+		bh->add_y = -1;
+	if (bh->delta_x <= bh->delta_y)
+		bh->err = -(bh->delta_y / 2);
+}
+
+void	get_delta_color(t_gradient *dt)
+{
+	dt->delta[0] = dt->to[0] - dt->from[0];
+	dt->delta[1] = dt->to[1] - dt->from[1];
+	dt->delta[2] = dt->to[2] - dt->from[2];
+}
+
+void	set_bresenham_error(t_bresenham *bh)
+{
+	bh->e2 = bh->err;
+	if (bh->e2 > -bh->delta_x)
+	{
+		bh->err -= bh->delta_y;
+		bh->x += bh->add_x;
+	}
+    if (bh->e2 < bh->delta_y)
+	{
+		bh->err += bh->delta_x;
+		bh->y += bh->add_y;
+	}
+}
+
+void	set_color_gradient(t_gradient *dt)
+{
+	dt->sum[0] += dt->delta[0];
+	dt->sum[1] += dt->delta[1];
+	dt->sum[2] += dt->delta[2];
+}
+
+void	draw_line(t_gradient *dt, t_bresenham *bh, t_data *data)
+{
+	int	colors;
+
+	while (1)
+	{
+		colors = ((dt->from[0] + (dt->sum[0] / (bh->distance)))<< 16) + ((dt->from[1] + (dt->sum[1] / (bh->distance))) << 8) + (dt->from[2] +  (dt->sum[2] / (bh->distance)));
+		my_mlx_pixel_put(data, bh->x, bh->y, colors);
+    	if (bh->x == bh->x_next && bh->y == bh->y_next)
+			break ;
+   	 	set_bresenham_error(bh);
+		set_color_gradient(dt);
+	}
+}
+
+void	traversal_DFS_recursion2(t_graph *graph, int vertex_id, t_data *data)
+{
+	t_node		*closeNode;
+	t_node		*cur_node;
+	t_bresenham	param;
+	t_gradient	dt;
+
+	cur_node = graph->edge[vertex_id];
+	if (cur_node->visited == VISITED)
 		return ;
-	graph->edge[vertex_id]->visited = VISITED;
+	cur_node->visited = VISITED;
 	closeNode = graph->edge[vertex_id]->next;
-	color.from_r = 0xFF0000 & 0b111111110000000000000000;
-	color.from_g = 0xFF0000 & 0b000000001111111100000000;
-	color.from_b = 0xFF0000 & 0b000000000000000011111111;
-	color.to_r = 0xFF0000 & 0b111111110000000000000000;
-	color.to_g = 0xFF0000 & 0b000000001111111100000000;
-	color.to_b = 0xFF0000 & 0b000000000000000011111111;
-	color.from_r >>= 16;
-	color.from_g >>= 8;
-	color.to_r >>= 16;
-	color.to_g >>= 8;
 	while (closeNode)
 	{
-		sum_r = 0;
-		sum_b = 0;
-		sum_g = 0;
-		x = *graph->edge[vertex_id]->screen_x;
-		y = *graph->edge[vertex_id]->screen_y;
-		x_next = *(closeNode->screen_x);
-		y_next = *(closeNode->screen_y);
-		delta_x = abs(x_next - x);
-		delta_y = abs(y_next - y);
-		pixels = sqrt((delta_x * delta_x) + (delta_y * delta_y));
-		if (pixels == 0)
-			pixels = 1;
+		init_color(&dt);
 		if (closeNode->color)
-		{
-			full_color_to = strtol(closeNode->color, NULL, 16);
-			color.to_r = (full_color_to & 0b111111110000000000000000) >> 16;
-			color.to_g = (full_color_to & 0b000000001111111100000000) >> 8;
-			color.to_b = full_color_to & 0b000000000000000011111111;
-		}
+			set_pixel_color(dt.to, closeNode->color);
 		if (graph->edge[vertex_id]->color)
-		{	
-			full_color_from = strtol(graph->edge[vertex_id]->color, NULL, 16);
-			color.from_r = (full_color_from & 0b111111110000000000000000) >> 16;
-			color.from_g = (full_color_from & 0b000000001111111100000000) >> 8;
-			color.from_b = full_color_from & 0b000000000000000011111111;
-		}
-		color.delta_r = color.to_r - color.from_r;
-		color.delta_g = color.to_g - color.from_g;
-		color.delta_b = color.to_b - color.from_b;
- 
-		add_x = 1;
-		add_y = 1; 
-		err = delta_x / 2; 
-		if (x >= x_next)
-			add_x = -1;
-		if (y >= y_next)
-			add_y = -1;
-		if (delta_x <= delta_y)
-			err = -delta_y / 2;
-		while (1)
-		{
-			colors = ((color.from_r + (sum_r / (pixels)))<< 16) + ((color.from_g + (sum_g / (pixels))) << 8) + (color.from_b +  (sum_b/ (pixels)));
-			my_mlx_pixel_put(data, x, offset.y + y, colors);
-    		if (x == x_next && y == y_next)
-				break ;
-   	 		e2 = err;
-    		if (e2 > -delta_x)
-			{
-				err -= delta_y;
-				x += add_x;
-			}
-    		if (e2 < delta_y)
-			{
-				err += delta_x;
-				y += add_y;
-			}
-			sum_r += color.delta_r;
-			sum_g += color.delta_g;
-			sum_b += color.delta_b;
-		}	
-		traversal_DFS_recursion2(graph, closeNode->vertex_id, data, offset);
+			set_pixel_color(dt.from, graph->edge[vertex_id]->color);
+		get_delta_color(&dt);
+		init_bresenham_param(&param, cur_node, closeNode);
+		set_bresenham_param(&param);
+		draw_line(&dt, &param, data);
+		traversal_DFS_recursion2(graph, closeNode->vertex_id, data);
 		closeNode = closeNode->next;
 	}
 }
@@ -230,22 +279,22 @@ int	find_y_max(t_coordinate *coor, int num_point)
 #define KEY_ESC			53
 #define MAX_SCREEN_WIDTH 1440
 #define MAX_SCREEN_HEIGHT 900
-#define ZOOM_DEFAULT 20
+#define ZOOM_DEFAULT 2
 
-void	matrix_calc(t_coordinate *coor, t_matrix component, t_map map, int distance)
+void	matrix_calc(t_map *map)
 {
 	int		index;
 
 	index = 0;
-	while (index < map.size)
+	while (index < map->size)
 	{
-		coor[index].x *= ZOOM_DEFAULT;
-		coor[index].y *= ZOOM_DEFAULT;
-		coor[index].z *= ZOOM_DEFAULT;
-		coor[index].screen_x = (cos(component.beta) * coor[index].x - sin(component.beta) * coor[index].z);
-		coor[index].screen_y = -(sin(component.alpha) * sin(component.beta) * coor[index].x \
-										  + cos(component.alpha) * coor[index].y \
-							   + (sin(component.alpha) * cos(component.beta) * coor[index].z));
+		map->coor[index].x *= ZOOM_DEFAULT;
+		map->coor[index].y *= ZOOM_DEFAULT;
+		map->coor[index].z *= ZOOM_DEFAULT;
+		map->coor[index].screen_x = (cos(map->rotation_y) * map->coor[index].x - sin(map->rotation_y) * map->coor[index].z);
+		map->coor[index].screen_y = -(sin(map->rotation_x) * sin(map->rotation_y) * map->coor[index].x \
+										  + cos(map->rotation_x) * map->coor[index].y \
+							   + (sin(map->rotation_x) * cos(map->rotation_y) * map->coor[index].z));
 		index++;
 	}
 }
@@ -281,6 +330,20 @@ void	resize2(t_coordinate *coor, int size, double z_scale)
 	}
 }
 
+void	set_offset(t_map *map)
+{
+	int	index;
+	int	offset;
+
+	index = 0;
+	offset = ft_abs(find_y_min(map->coor, map->size));
+	while (index < map->size)
+	{
+		map->coor[index].screen_y += offset + 5;
+		map->coor[index].screen_x += 5;
+		index++;
+	}
+}
 
 void	connect_vertexes(t_graph *undirect, t_map map, t_coordinate *coor)
 {
@@ -319,79 +382,93 @@ void	connect_vertexes(t_graph *undirect, t_map map, t_coordinate *coor)
 #include <errno.h>
 #include "error_messages.h"
 
+typedef	struct	s_file
+{
+	int		fd;
+	char	*name;
+}				t_file;
+
+void	init_map(t_map *map)
+{
+	map->column = 0;
+	map->row = 0;
+	map->size = 0;
+	map->screen_width = 0;
+	map->screen_height = 0;
+	map->scale = 0;
+	map->rotation_x = asin(tan(26.565 * M_PI / 180));
+	map->rotation_y = -45 * M_PI / 180;
+	map->coor = 0;
+}
+
+void	get_screen_size(t_map *map)
+{
+	map->screen_width = ft_abs(find_x_max(map->coor, map->size) - find_x_min(map->coor, map->size));
+	map->screen_height = ft_abs(find_y_min(map->coor, map->size) - find_y_max(map->coor, map->size));
+}
+
+void	scale_map(t_map *map)
+{
+	if (map->screen_height >= MAX_SCREEN_HEIGHT)
+	{
+		map->scale = MAX_SCREEN_HEIGHT / (double)map->screen_height;
+		resize(map->coor, map->size, map->scale);
+		map->screen_height = MAX_SCREEN_HEIGHT;
+	}
+	if (map->screen_width >= MAX_SCREEN_WIDTH)
+	{
+		map->scale = MAX_SCREEN_WIDTH / (double)map->screen_width;
+		resize2(map->coor, map->size, map->scale);
+		map->screen_width = MAX_SCREEN_WIDTH;
+	}
+}
+
+void	set_mlx(t_data *data, t_map *map)
+{
+	data->mlx = mlx_init();
+	data->img = mlx_new_image(data->mlx, map->screen_width + 10, map->screen_height + 10);
+	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel, &data->line_length, &data->endian);
+	data->mlx_win = mlx_new_window(data->mlx, map->screen_width + 10, map->screen_height + 10, "fdf");
+}
+
+void	set_map(t_map *map, t_file *file)
+{
+	map->block = read_map(file->fd, map);
+	get_map_size(map->block, map);
+	close(file->fd);
+	map->coor = ft_calloc(map->size, sizeof(t_coordinate));
+	if (!map->coor)
+		terminate(ERR_MEMORY_ALLOCATION);
+	make_coordinate(map->block, map->coor);
+	get_map_color(map->block, map->coor);
+	matrix_calc(map);
+	get_screen_size(map);
+	scale_map(map);
+	set_offset(map);
+}
+
 int main(int argc, char **argv)
 {
 	t_graph				*undirect;
-	int					fd;
-	t_coordinate		*coor;
-	void				*mlx;
-	void				*mlx_win;
-	t_data				img;
-	int					screen_width;
-	int					screen_height;
-	t_matrix			component;
-	t_offset			offset;
-	char				*filename;
-	double				z_scale;
-	double				zoom;
+	t_file				file;
+	t_data				data;
 	t_map				map;
-	t_list				*map_block;
 
-	map.size = 0;
-	map.column = 0;
-	map.row = 0;
 	if (argc != 2)
 		terminate(ERR_ARGUMENTS);
-	filename = argv[1];
-	fd = open(filename, O_RDONLY);
-	if (fd == -1)
-		terminate(filename);
-	map_block = read_map(fd, &map);
-	get_map_size(map_block, &map);
-	close(fd);
-	coor = ft_calloc(map.size, sizeof(t_coordinate));
-	if (!coor)
-		terminate(ERR_MEMORY_ALLOCATION);
-	make_coordinate(map_block, coor);
-	get_map_color(map_block, coor);
-	component.alpha = asin(tan(26.565 * M_PI / 180));
-	component.beta = -45 * M_PI / 180;
-
-	mlx = mlx_init();
-	screen_width = 0;
-	screen_height = 0;
-	zoom = ZOOM_DEFAULT;
+	file.name = argv[1];
+	file.fd = open(file.name, O_RDONLY);
+	if (file.fd == -1)
+		terminate(file.name);
+	init_map(&map);
+	set_map(&map, &file);
+	set_mlx(&data, &map);
 	undirect = create_graph(map.size);
-	connect_vertexes(undirect, map, coor);
-	matrix_calc(coor, component, map, 20);
-	screen_width = abs(find_x_max(coor, map.size) - find_x_min(coor, map.size));
-	screen_height = abs(find_y_min(coor, map.size) - find_y_max(coor, map.size));
-	z_scale = 0;
-	if (screen_height >= MAX_SCREEN_HEIGHT)
-	{
-		z_scale = MAX_SCREEN_HEIGHT / (double)screen_height;
-		resize(coor, map.size, z_scale);
-		screen_height = MAX_SCREEN_HEIGHT;
-	}
-	if (screen_width >= MAX_SCREEN_WIDTH)
-	{
-		z_scale = MAX_SCREEN_WIDTH / (double)screen_width;
-		resize2(coor, map.size, z_scale);
-		screen_width = MAX_SCREEN_WIDTH;
-	}
-	offset.x = abs(find_x_min(coor, map.size));
-	offset.y = abs(find_y_min(coor, map.size));
-	printf("%d %d\n", screen_width, screen_height);
-	img.img = mlx_new_image(mlx, screen_width + 10, screen_height + 10);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
-	traversal_DFS_recursion2(undirect, 0, &img, offset);
-	if (screen_width >= MAX_SCREEN_WIDTH)
-		screen_width = MAX_SCREEN_WIDTH;
-	if (screen_height >= MAX_SCREEN_HEIGHT)
-		screen_height = MAX_SCREEN_HEIGHT;
-	mlx_win = mlx_new_window(mlx, screen_width + 10, screen_height + 10, "fdf");
-	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
+	connect_vertexes(undirect, map, map.coor);
+	traversal_DFS_recursion2(undirect, 0, &data);
+	mlx_put_image_to_window(data.mlx, data.mlx_win, data.img, 0, 0);
 	deleteLinkedGraph(undirect);
-	mlx_hook(mlx_win, X_EVENT_KEY_PRESS, 0, &key_press, 0);
-	mlx_loop(mlx);
+	mlx_hook(data.mlx_win, X_EVENT_KEY_PRESS, 0, &key_press, 0);
+	mlx_loop(data.mlx);
+	return (0);
 }

@@ -11,31 +11,10 @@ typedef struct	s_coordinate
 	int		x;
 	int		y;
 	int		z;
-	double	new_x;
-	double	new_y;
-	double	new_z;
 	int		screen_x;
 	int		screen_y;
 	char	*color;
-	int		visible;
 }				t_coordinate;
-
-typedef struct	s_coordinate_list
-{
-	int		x;
-	int		y;
-	int		z;
-	double	new_x;
-	double	new_y;
-	double	new_z;
-	double	screen_x;
-	double	screen_y;
-	char	*color;
-	t_coordinate	*block;
-	struct s_coordinate_list *next;
-}				t_coordinate_list;
-
-
 
 typedef struct	s_node
 {
@@ -59,9 +38,16 @@ typedef struct	s_graph
 
 typedef struct	s_map
 {
-	int	column;
-	int	row;
-	int	size;
+	int				column;
+	int				row;
+	int				size;
+	int				screen_width;
+	int				screen_height;
+	double			scale;
+	double			rotation_x;
+	double			rotation_y;
+	t_list			*block;
+	t_coordinate	*coor;
 }				t_map;
 
 typedef	struct	s_block
