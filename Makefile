@@ -42,12 +42,11 @@ $(MLX):
 
 clean:
 	rm -rf $(OBJECT_DIR)
-	@make clean -C mlx/
-	@make clean -C libft/
+	@make -C mlx/ clean
+	@make -C libft/ clean
 
 fclean: clean
 	rm -f $(NAME) $(LIBFT) $(MLX)
-	@rm -f $(LIBFT) -C libft/
-	@rm -f $(MLX) -C mlx/
+	@make -C libft/ fclean
 
 re : fclean all
