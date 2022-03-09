@@ -5,12 +5,15 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: sohan <sohan@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/09 13:43:19 by sohan             #+#    #+#             */
-/*   Updated: 2021/06/17 12:31:01 by sohan            ###   ########.fr       */
+/*   Created: 2022/03/09 18:21:16 by sohan             #+#    #+#             */
+/*   Updated: 2022/03/09 18:21:28 by sohan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 4096
+#endif
 
 void	free_one_and_next(t_list_gnl **lst)
 {
@@ -69,6 +72,13 @@ char	*gnl_strjoin(t_list_gnl **save, ssize_t *success)
 	return (joined);
 }
 
+static void	move_str_addr(const char **str, char sep, int i)
+{
+	*str += i;
+	if (**str == sep)
+		(*str)++;
+}
+
 t_list_gnl	*gnl_split(const char *str, char sep, ssize_t *success)
 {
 	t_list_gnl	*node;
@@ -82,17 +92,16 @@ t_list_gnl	*gnl_split(const char *str, char sep, ssize_t *success)
 	{
 		while (str[i] != sep && str[i])
 			i++;
-		if ((temp_str = ft_strndup(str, i)) == 0 || \
-				(temp_node = ft_gnl_lstnew(temp_str, i, str[i])) == 0)
+		temp_str = ft_strndup(str, i);
+		temp_node = ft_gnl_lstnew(temp_str, i, str[i]);
+		if (temp_str == 0 || temp_node == 0)
 		{
 			free_all_nodes(&node);
 			*success = -1;
 			return (0);
 		}
 		ft_gnl_lstadd_back(&node, temp_node);
-		str += i;
-		if (*str == sep)
-			str++;
+		move_str_addr(&str, sep, i)	;
 		i = 0;
 	}
 	return (node);
@@ -109,7 +118,8 @@ int		get_next_line(int fd, char **line)
 		return (-1);
 	while (read_val)
 	{
-		if ((read_val = read(fd, buffer, BUFFER_SIZE)) == -1)
+		read_val = read(fd, buffer, BUFFER_SIZE);
+		if (read_val == -1)
 			return (-1);
 		buffer[read_val] = '\0';
 		ft_gnl_lstadd_back(&save[fd], gnl_split(buffer, '\n', &read_val));

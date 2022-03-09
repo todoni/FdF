@@ -79,6 +79,7 @@ int	make_coordinate(t_list *lst, t_coordinate *coor)
 			coor[j].x = row;
 			coor[j].y = ft_atoi(block[i]);
 			coor[j].z = i;
+			coor[j].visible = VISIBLE;
 			i++;
 			j++;
 		}

@@ -9,7 +9,7 @@
 # define KEY_ESC				53
 # define MAX_SCREEN_WIDTH 		1440
 # define MAX_SCREEN_HEIGHT 		900
-# define ZOOM_DEFAULT 			1
+# define ZOOM_DEFAULT 			2
 
 typedef struct	s_data {
 	void	*mlx;
@@ -49,7 +49,6 @@ typedef	struct	s_file
 	int		fd;
 	char	*name;
 }				t_file;
-
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
 void	init_color(t_gradient *dt);

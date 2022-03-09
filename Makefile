@@ -1,5 +1,6 @@
 
-INCLUDE_DIR = ./includes/
+INCLUDES_DIR = ./includes/
+LIBFT_INC_DIR = ./libft/
 SOURCE_DIR = ./sources/
 OBJECT_DIR = objects
 FILES = \
@@ -14,29 +15,31 @@ SOURCES = $(addprefix $(SOURCE_DIR), $(addsuffix .c, $(FILES)))
 OBJECTS = $(addprefix $(OBJECT_DIR)/, $(addsuffix .o, $(FILES)))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I$(INCLUDE_DIR) -Ilibft
+CFLAGS = -Wall -Wextra -Werror
 DLIBS	= -framework Metal -framework AppKit
+LDFLAGS = -lmlx -Lmlx -Llibft -lft
 
 NAME = fdf
-LIBFT	= libft.a
+LIBFT	= $(addprefix $(LIBFT_INC_DIR), libft.a)
 MLX	= libmlx.dylib
 
 all: $(NAME) 
 
-$(NAME): $(OBJECTS) $(LIBFT) $(MLX)
-	$(CC) $(CFLAGS) $^ $(DLIBS) -I$(INCLUDE_DIR) -o $@
+$(NAME): $(OBJECT_DIR) $(OBJECTS) $(LIBFT) $(MLX)
+	$(CC) $(CFLAGS) $(DLIBS) $(LDFLAGS) -I$(INCLUDES_DIR) $(OBJECTS) -o $@ 
 
 $(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)
 
-$(OBJECT_DIR)/%.o: %.c $(OBJECT_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJECT_DIR)/%.o: %.c
+	$(CC) $(CFLAGS) -I$(INCLUDES_DIR) -I$(LIBFT_INC_DIR) -c $< -o $@
 
 $(LIBFT):
-	@make bonus -C libft/
-	@cp libft/$@ .
+	@echo "make libft"
+	@make -C libft/
 
 $(MLX):
+	@echo "make mlx"
 	@make -C mlx/
 	@cp mlx/$@ .
 

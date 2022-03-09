@@ -34,13 +34,11 @@ void	set_pixel_color(int *color, char *rgb)
 {
 	int	full_color;
 
-	full_color = strtol(rgb, NULL, 16);
+	full_color = ft_htoi(rgb);
 	color[0] = (full_color & 0b111111110000000000000000) >> 16;
 	color[1] = (full_color & 0b000000001111111100000000) >> 8;
 	color[2] = full_color & 0b000000000000000011111111;
 }
-
-
 
 void	init_bresenham_param(t_bresenham *bh, t_node *from, t_node *to)
 {
@@ -103,12 +101,14 @@ void	draw_line(t_gradient *dt, t_bresenham *bh, t_data *data)
 
 	while (1)
 	{
-		colors = ((dt->from[0] + (dt->sum[0] / (bh->distance)))<< 16) + ((dt->from[1] + (dt->sum[1] / (bh->distance))) << 8) + (dt->from[2] +  (dt->sum[2] / (bh->distance)));
-		my_mlx_pixel_put(data, bh->x, bh->y, colors);
     	if (bh->x == bh->x_next && bh->y == bh->y_next)
 			break ;
    	 	set_bresenham_error(bh);
 		set_color_gradient(dt);
+		colors = ((dt->from[0] + (dt->sum[0] / (bh->distance)))<< 16) + ((dt->from[1] + (dt->sum[1] / (bh->distance))) << 8) + (dt->from[2] +  (dt->sum[2] / (bh->distance)));
+		if (bh->x > MAX_SCREEN_WIDTH || bh->y > MAX_SCREEN_HEIGHT)
+			continue;
+		my_mlx_pixel_put(data, bh->x, bh->y, colors);
 	}
 }
 
@@ -211,9 +211,9 @@ void	set_screen_coordinate(t_map *map)
 	index = 0;
 	while (index < map->size)
 	{
-		map->coor[index].x *= ZOOM_DEFAULT;
-		map->coor[index].y *= ZOOM_DEFAULT;
-		map->coor[index].z *= ZOOM_DEFAULT;
+		map->coor[index].x *= map->scale;
+		map->coor[index].y *= map->scale;
+		map->coor[index].z *= map->scale;
 		map->coor[index].screen_x = (cos(map->rotation_y) * map->coor[index].x - sin(map->rotation_y) * map->coor[index].z);
 		map->coor[index].screen_y = -(sin(map->rotation_x) * sin(map->rotation_y) * map->coor[index].x \
 										  + cos(map->rotation_x) * map->coor[index].y \
@@ -323,16 +323,16 @@ void	get_screen_size(t_map *map)
 
 void	scale_map(t_map *map)
 {
-	if (map->screen_height >= MAX_SCREEN_HEIGHT)
+	if (map->screen_height > MAX_SCREEN_HEIGHT)
 	{
-		map->scale = MAX_SCREEN_HEIGHT / (double)map->screen_height;
-		resize_y(map->coor, map->size, map->scale);
+		//map->scale = MAX_SCREEN_HEIGHT / (double)map->screen_height;
+		//resize_y(map->coor, map->size, map->scale);
 		map->screen_height = MAX_SCREEN_HEIGHT;
 	}
-	if (map->screen_width >= MAX_SCREEN_WIDTH)
+	if (map->screen_width > MAX_SCREEN_WIDTH)
 	{
-		map->scale = MAX_SCREEN_WIDTH / (double)map->screen_width;
-		resize_x(map->coor, map->size, map->scale);
+		//map->scale = MAX_SCREEN_WIDTH / (double)map->screen_width;
+		//resize_x(map->coor, map->size, map->scale);
 		map->screen_width = MAX_SCREEN_WIDTH;
 	}
 }
@@ -343,6 +343,21 @@ void	set_mlx(t_data *data, t_map *map)
 	data->img = mlx_new_image(data->mlx, map->screen_width + 10, map->screen_height + 10);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel, &data->line_length, &data->endian);
 	data->mlx_win = mlx_new_window(data->mlx, map->screen_width + 10, map->screen_height + 10, "fdf");
+}
+
+void	set_coordinate_visibility(t_map *map)
+{
+	int	i;
+
+	i = 0;
+	while (i < map->size)
+	{
+		if (map->coor[i].screen_x > MAX_SCREEN_WIDTH)
+			map->coor[i].visible = NOT_VISIBLE;
+		if (map->coor[i].screen_y > MAX_SCREEN_HEIGHT)
+			map->coor[i].visible = NOT_VISIBLE;
+		i++;
+	}
 }
 
 void	set_map(t_map *map, t_file *file)
@@ -356,9 +371,9 @@ void	set_map(t_map *map, t_file *file)
 	make_coordinate(map->block, map->coor);
 	get_map_color(map->block, map->coor);
 	set_screen_coordinate(map);
+	set_offset(map);
 	get_screen_size(map);
 	scale_map(map);
-	set_offset(map);
 }
 
 int main(int argc, char **argv)
@@ -368,13 +383,16 @@ int main(int argc, char **argv)
 	t_data				data;
 	t_map				map;
 
-	if (argc != 2)
+	if (argc != 3)
 		terminate(ERR_ARGUMENTS);
 	file.name = argv[1];
 	file.fd = open(file.name, O_RDONLY);
 	if (file.fd == -1)
 		terminate(file.name);
 	init_map(&map);
+	map.scale = ft_atoi(argv[2]);
+	if (map.scale == 0)
+		map.scale = ZOOM_DEFAULT;
 	set_map(&map, &file);
 	set_mlx(&data, &map);
 	undirect = create_graph(map.size);

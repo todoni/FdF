@@ -6,16 +6,18 @@
 # include <fcntl.h>
 # include "libft.h"
 
-# define TRUE		1
-# define FALSE		0
+# define TRUE			1
+# define FALSE			0
 
-# define USED		1
-# define NOT_USED	0
+# define USED			1
+# define NOT_USED		0
 
-# define SUCCESS	1
-# define FAIL		0
+# define SUCCESS		1
+# define FAIL			0
 
-# define VISITED	1
+# define VISITED		1
+# define VISIBLE		1
+# define NOT_VISIBLE	1
 
 typedef struct	s_coordinate
 {
@@ -24,6 +26,7 @@ typedef struct	s_coordinate
 	int		z;
 	int		screen_x;
 	int		screen_y;
+	int		visible;
 	char	*color;
 }				t_coordinate;
 
@@ -53,7 +56,7 @@ typedef struct	s_map
 	int				size;
 	int				screen_width;
 	int				screen_height;
-	double			scale;
+	int				scale;
 	double			rotation_x;
 	double			rotation_y;
 	t_list			*block;
