@@ -29,7 +29,7 @@ static size_t	find_location(char const *s1_moved, char const *set)
 	return (location);
 }
 
-char			*ft_strtrim(char const *s1, char const *set)
+char	*ft_strtrim(char const *s1, char const *set)
 {
 	size_t	front;
 	size_t	back;

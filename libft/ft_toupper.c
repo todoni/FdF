@@ -19,7 +19,7 @@ static int	ft_islower(int c)
 	return (0);
 }
 
-int			ft_toupper(int c)
+int	ft_toupper(int c)
 {
 	int	result;
 

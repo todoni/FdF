@@ -20,23 +20,23 @@
 #  define OPEN_MAX 256
 # endif
 
-typedef struct	s_list_gnl
+typedef struct s_list_gnl
 {
-	void	*content;
-	char		newline;
-	size_t		len;
-	struct s_list_gnl *next;
-}				t_list_gnl;
+	void				*content;
+	char				newline;
+	size_t				len;
+	struct s_list_gnl	*next;
+}	t_list_gnl;
 
 int				get_next_line(int fd, char **line);
 void			free_one_and_next(t_list_gnl **lst);
 void			free_all_nodes(t_list_gnl **lst);
 char			*ft_strndup(const char *s1, size_t n);
-t_list_gnl			*gnl_split(const char *str, char sep, ssize_t *success);
+t_list_gnl		*gnl_split(const char *str, char sep, ssize_t *success);
 char			*gnl_strjoin(t_list_gnl **save, ssize_t *success);
 char			*concatenate_nodes(t_list_gnl **save, char *joined);
 void			ft_gnl_lstadd_back(t_list_gnl **lst, t_list_gnl *new);
-t_list_gnl			*ft_gnl_lstnew(void *content, size_t len, char newline);
+t_list_gnl		*ft_gnl_lstnew(void *content, size_t len, char newline);
 int				ft_gnl_strchr(const char *s, int c);
-	
+
 #endif

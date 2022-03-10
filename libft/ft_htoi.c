@@ -23,7 +23,8 @@ int	ft_htoi(const char *str)
 
 	result = 0;
 	str += 2;
-	while (ft_isdigit(*str) || ('a' <= *str && *str <= 'f') || ('A' <= *str && *str <= 'F'))
+	while (ft_isdigit(*str) || ('a' <= *str && *str <= 'f') \
+										|| ('A' <= *str && *str <= 'F'))
 	{
 		result *= 16;
 		result += find_index(*str);

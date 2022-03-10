@@ -8,6 +8,13 @@ FILES = \
 		graph \
 		map \
 		main \
+		bresenham \
+		color \
+		init \
+		setting \
+		utils \
+		utils2 \
+		draw \
 
 vpath %.c $(SOURCE_DIR)
 
@@ -53,3 +60,5 @@ fclean: clean
 	@make -C libft/ fclean
 
 re : fclean all
+
+.PHONY: all clean fclean re

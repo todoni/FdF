@@ -42,7 +42,7 @@ static int	is_exceed(const char *str)
 	return (0);
 }
 
-int			ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
 	int	result;
 	int	sign;

@@ -1,7 +1,6 @@
-#include "get_next_line.h"
-#include "libft.h"
-#include "graph.h"
-#include "error_messages.h"
+#include "../libft/get_next_line.h"
+#include "../includes/error_messages.h"
+#include "../includes/fdf.h"
 
 t_list	*read_map(int fd, t_map *map)
 {
@@ -31,7 +30,7 @@ t_list	*read_map(int fd, t_map *map)
 int	get_map_size(t_list *lst, t_map *map)
 {
 	int		i;
-	char 	**block;
+	char	**block;
 
 	i = 0;
 	while (lst)
@@ -53,7 +52,7 @@ int	get_map_size(t_list *lst, t_map *map)
 
 void	jump_empty_coordinate(t_list **lst)
 {
-	char **block;
+	char	**block;
 
 	block = (*lst)->content;
 	if (!block[0])
@@ -70,72 +69,20 @@ int	make_coordinate(t_list *lst, t_coordinate *coor)
 	j = 0;
 	row = 0;
 	jump_empty_coordinate(&lst);
-	while(lst)
-	{
-		block = lst->content;
-		i = 0;
-		while(block[i])
-		{
-			coor[j].x = row;
-			coor[j].y = ft_atoi(block[i]);
-			coor[j].z = i;
-			coor[j].visible = VISIBLE;
-			i++;
-			j++;
-		}
-		row++;
-		lst = lst->next;
-	}
-	return (0);
-}
-
-void	free_array(char **array)
-{
-	int	i;
-
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
-}
-
-char	*extract_color(char *str)
-{
-	char	**color;
-	char	*target;
-
-	target = 0;
-	color = ft_split(str, ',');
-	if (!color)
-		terminate(ERR_MAP_READING);
-	if (color[1])
-		target = ft_strdup(color[1]);
-	free_array(color);
-	return (target);
-}
-
-int	get_map_color(t_list *lst, t_coordinate *coor)
-{
-	char	**block;
-	int		i;
-	int		j;
-
-	j = 0;
 	while (lst)
 	{
 		block = lst->content;
 		i = 0;
 		while (block[i])
 		{
-			coor[j].color = extract_color(block[i]);
+			coor[j].x = row;
+			coor[j].y = ft_atoi(block[i]);
+			coor[j].z = i;
 			i++;
 			j++;
 		}
+		row++;
 		lst = lst->next;
-		free_array(block);
 	}
 	return (0);
 }

@@ -31,7 +31,7 @@ t_list_gnl	*ft_gnl_lstnew(void *content, size_t len, char newline)
 {
 	t_list_gnl	*lstnew;
 
-	lstnew = (t_list_gnl*)malloc(1 * sizeof(t_list_gnl));
+	lstnew = (t_list_gnl *)malloc(1 * sizeof(t_list_gnl));
 	if (lstnew == 0)
 		return (0);
 	lstnew->content = content;
@@ -47,7 +47,7 @@ void	free_all_nodes(t_list_gnl **lst)
 		free_one_and_next(lst);
 }
 
-int		ft_gnl_strchr(const char *s, int c)
+int	ft_gnl_strchr(const char *s, int c)
 {
 	if (c == 0)
 		return (0);
@@ -71,7 +71,7 @@ char	*concatenate_nodes(t_list_gnl **save, char *joined)
 	{
 		while (j < (*save)->len)
 		{
-			*(joined + i) = *((char*)((*save)->content) + j);
+			*(joined + i) = *((char *)((*save)->content) + j);
 			i++;
 			j++;
 		}
@@ -80,7 +80,7 @@ char	*concatenate_nodes(t_list_gnl **save, char *joined)
 	}
 	while (*save && j < (*save)->len)
 	{
-		*(joined + i) = *((char*)((*save)->content) + j);
+		*(joined + i) = *((char *)((*save)->content) + j);
 		i++;
 		j++;
 	}

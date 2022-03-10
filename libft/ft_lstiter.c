@@ -25,7 +25,7 @@ static int	ft_lstsize_np(t_list *lst)
 	return (size + 1);
 }
 
-void		ft_lstiter(t_list *lst, void (*f)(void*))
+void	ft_lstiter(t_list *lst, void (*f)(void*))
 {
 	size_t	size;
 	size_t	i;

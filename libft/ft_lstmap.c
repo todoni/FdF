@@ -25,7 +25,7 @@ static int	ft_lstsize_np(t_list *lst)
 	return (size + 1);
 }
 
-t_list		*ft_lstmap(t_list *lst, void *(*f)(void*), void (*del)(void*))
+t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
 {
 	t_list	*lst_mapped;
 	t_list	*temp;

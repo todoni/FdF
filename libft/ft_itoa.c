@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-static int		find_digit(int n)
+static int	find_digit(int n)
 {
 	int	digit;
 
@@ -27,7 +27,7 @@ static int		find_digit(int n)
 	return (digit);
 }
 
-char			*ft_itoa(int n)
+char	*ft_itoa(int n)
 {
 	int		init;
 	int		digit;
@@ -37,7 +37,7 @@ char			*ft_itoa(int n)
 	digit = find_digit(n);
 	if (n < 0)
 		digit++;
-	nbr = (char*)ft_calloc(digit + 1, sizeof(char));
+	nbr = (char *)ft_calloc(digit + 1, sizeof(char));
 	if (nbr == 0)
 		return (0);
 	while (digit > 0)
