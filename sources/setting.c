@@ -10,9 +10,9 @@ void	set_screen_coordinate(t_map *map)
 	index = 0;
 	while (index < map->size)
 	{
-		map->coor[index].x *= map->scale;
-		map->coor[index].y *= map->scale;
-		map->coor[index].z *= map->scale;
+		map->coor[index].x *= ZOOM_DEFAULT;
+		map->coor[index].y *= ZOOM_DEFAULT;
+		map->coor[index].z *= ZOOM_DEFAULT;
 		map->coor[index].screen_x = \
 								(cos(map->rotation_y) * map->coor[index].x \
 								- sin(map->rotation_y) * map->coor[index].z);
@@ -34,8 +34,7 @@ void	set_offset(t_map *map)
 	offset = ft_abs(find_y_min(map->coor, map->size));
 	while (index < map->size)
 	{
-		map->coor[index].screen_y += offset + 5;
-		map->coor[index].screen_x += 5;
+		map->coor[index].screen_y += offset;
 		index++;
 	}
 }
@@ -62,7 +61,7 @@ void	set_map(t_map *map, t_file *file)
 	make_coordinate(map->block, map->coor);
 	get_map_color(map->block, map->coor);
 	set_screen_coordinate(map);
-	set_offset(map);
 	get_screen_size(map);
 	scale_map(map);
+	set_offset(map);
 }

@@ -4,6 +4,4 @@
 *.o
 *.out*
 .ccls
-test_maps/
 *tutorial*
-*test*

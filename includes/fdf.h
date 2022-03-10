@@ -9,7 +9,7 @@
 # define KEY_ESC				53
 # define MAX_SCREEN_WIDTH 		1440
 # define MAX_SCREEN_HEIGHT 		900
-# define ZOOM_DEFAULT 			2
+# define ZOOM_DEFAULT 			64
 
 # define TRUE			1
 # define FALSE			0
