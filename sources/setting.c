@@ -3,6 +3,7 @@
 #include "../includes/error_messages.h"
 #include <unistd.h>
 
+
 void	set_screen_coordinate(t_map *map)
 {
 	int		index;
@@ -48,6 +49,13 @@ void	set_mlx(t_data *data, t_map *map)
 									&data->line_length, &data->endian);
 	data->mlx_win = mlx_new_window(data->mlx, map->screen_width + 10, \
 										map->screen_height + 10, "fdf");
+}
+
+void	get_screen_size(t_map *map)
+{
+	map->screen_width = ft_abs(find_x_max(map->coor, map->size));
+	map->screen_height = ft_abs(find_y_min(map->coor, map->size) - \
+										find_y_max(map->coor, map->size));
 }
 
 void	set_map(t_map *map, t_file *file)

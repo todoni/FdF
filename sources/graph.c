@@ -33,7 +33,7 @@ t_node	**create_list(int max_vertex_count)
 	index = 0;
 	tmp_list = ft_calloc(max_vertex_count, sizeof(t_node *));
 	if (!tmp_list)
-		return (0);
+		return (FAIL);
 	while (index < max_vertex_count)
 	{
 		tmp_list[index] = ft_calloc(1, sizeof(t_node));
@@ -42,7 +42,7 @@ t_node	**create_list(int max_vertex_count)
 			while (--index > -1)
 				free(tmp_list[index]);
 			free(tmp_list);
-			return (0);
+			return (FAIL);
 		}
 		tmp_list[index]->vertex_id = index;
 		index++;
@@ -58,16 +58,16 @@ t_graph	*create_graph(int max_vertex_count)
 
 	tmp = ft_calloc(1, sizeof(t_graph));
 	if (!tmp)
-		return (0);
+		return (FAIL);
 	tmp->max_vertex_count = max_vertex_count;
 	tmp->current_vertex_count = 0;
 	tmp_list = create_list(max_vertex_count);
 	if (!tmp_list)
-		return (0);
+		return (FAIL);
 	tmp->edge = tmp_list;
 	tmp_vertex = ft_calloc(max_vertex_count, sizeof(int));
 	if (!tmp_vertex)
-		return (0);
+		return (FAIL);
 	tmp->vertex = tmp_vertex;
 	return (tmp);
 }
