@@ -30,11 +30,11 @@ static void	set_bresenham_param(t_bresenham *bh)
 	bh->add_x = 1;
 	bh->add_y = 1;
 	bh->err = bh->delta_x / 2;
-	if (bh->x >= bh->x_next)
+	if (bh->x > bh->x_next)
 		bh->add_x = -1;
-	if (bh->y >= bh->y_next)
+	if (bh->y > bh->y_next)
 		bh->add_y = -1;
-	if (bh->delta_x <= bh->delta_y)
+	if (bh->delta_x < bh->delta_y)
 		bh->err = -(bh->delta_y / 2);
 }
 
