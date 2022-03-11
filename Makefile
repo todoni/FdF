@@ -1,3 +1,14 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: sohan <sohan@student.42seoul.kr>           +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/03/11 15:38:21 by sohan             #+#    #+#              #
+#    Updated: 2022/03/11 15:39:01 by sohan            ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 INCLUDES_DIR = ./includes/
 LIBFT_INC_DIR = ./libft/
@@ -21,12 +32,12 @@ SOURCES = $(addprefix $(SOURCE_DIR), $(addsuffix .c, $(FILES)))
 OBJECTS = $(addprefix $(OBJECT_DIR)/, $(addsuffix .o, $(FILES)))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -g
-DLIBS	= -framework Metal -framework AppKit
+CFLAGS = -Wall -Wextra -Werror
+DLIBS = -framework Metal -framework AppKit
 LDFLAGS = -lmlx -Lmlx -Llibft -lft
 
 NAME = fdf
-LIBFT	= $(addprefix $(LIBFT_INC_DIR), libft.a)
+LIBFT = $(addprefix $(LIBFT_INC_DIR), libft.a)
 MLX	= libmlx.dylib
 
 all: $(NAME) 

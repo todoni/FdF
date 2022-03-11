@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw_map.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sohan <sohan@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/11 15:34:02 by sohan             #+#    #+#             */
+/*   Updated: 2022/03/11 15:34:04 by sohan            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/fdf.h"
 
 static void	init_bresenham_param(t_bresenham *bh, t_node *from, t_node *to)
@@ -28,13 +40,15 @@ static void	set_bresenham_param(t_bresenham *bh)
 
 static void	set_bresenham_error(t_bresenham *bh)
 {
-	bh->e2 = bh->err;
-	if (bh->e2 > -bh->delta_x)
+	int	err;
+
+	err = bh->err;
+	if (err > -bh->delta_x)
 	{
 		bh->err -= bh->delta_y;
 		bh->x += bh->add_x;
 	}
-	if (bh->e2 < bh->delta_y)
+	if (err < bh->delta_y)
 	{
 		bh->err += bh->delta_x;
 		bh->y += bh->add_y;
@@ -47,16 +61,14 @@ static void	draw_bresenham_line(t_gradient *dt, t_bresenham *bh, t_data *data)
 
 	while (1)
 	{
+		colors = ((dt->from[0] + (dt->sum[0] / (bh->distance))) << 16) + \
+			((dt->from[1] + (dt->sum[1] / (bh->distance))) << 8) + \
+			(dt->from[2] + (dt->sum[2] / (bh->distance)));
+		my_mlx_pixel_put(data, bh->x, bh->y, colors);
 		if (bh->x == bh->x_next && bh->y == bh->y_next)
 			break ;
 		set_bresenham_error(bh);
 		set_color_gradient(dt);
-		colors = ((dt->from[0] + (dt->sum[0] / (bh->distance))) << 16) + \
-			((dt->from[1] + (dt->sum[1] / (bh->distance))) << 8) + \
-			(dt->from[2] + (dt->sum[2] / (bh->distance)));
-		if (bh->x > MAX_SCREEN_WIDTH || bh->y > MAX_SCREEN_HEIGHT)
-			continue ;
-		my_mlx_pixel_put(data, bh->x, bh->y, colors);
 	}
 }
 
