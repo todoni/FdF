@@ -44,6 +44,6 @@ for testcase in ${test_case}
 do
 	echo map test
 	echo "> cat ${testcase};./fdf ${testcase}"
-	cat ${testcase};./fdf ${testcase}
+	cat ${testcase};leaks -atExit -- ./fdf ${testcase}
 	read; clear
 done
