@@ -9,7 +9,6 @@
 # define KEY_ESC				53
 # define MAX_SCREEN_WIDTH 		1440
 # define MAX_SCREEN_HEIGHT 		900
-# define ZOOM_DEFAULT 			64
 
 # define TRUE			1
 # define FALSE			0
@@ -40,7 +39,6 @@ typedef struct s_coordinate
 	int		z;
 	int		screen_x;
 	int		screen_y;
-	int		visible;
 	char	*color;
 }				t_coordinate;
 
@@ -54,7 +52,7 @@ typedef struct s_map
 	double			scale;
 	double			rotation_x;
 	double			rotation_y;
-	t_list			*block;
+	t_list			*list_coordinate;
 	t_coordinate	*coor;
 }	t_map;
 
@@ -64,7 +62,7 @@ typedef struct s_color_gradient
 	int	to[3];
 	int	delta[3];
 	int	sum[3];
-}				t_gradient;
+}	t_gradient;
 
 typedef struct s_bresenham
 {
@@ -79,7 +77,7 @@ typedef struct s_bresenham
 	int	err;
 	int	e2;
 	int	distance;
-}				t_bresenham;
+}	t_bresenham;
 
 typedef struct s_node
 {
@@ -98,7 +96,7 @@ typedef struct s_graph
 	int		current_edge_count;
 	t_node	**edge;
 	int		*vertex;
-}				t_graph;
+}	t_graph;
 
 typedef struct s_file
 {
@@ -110,30 +108,23 @@ t_graph	*create_graph(int max_vertex_count);
 int		add_vertex(t_graph *graph, int vertex_id, t_coordinate *coor);
 int		add_edge(t_graph *graph, int from_vertex_id, \
 								int to_vertex_id, t_coordinate *coor);
-void	delete_graph(t_graph *graph);
-void	terminate(char *error_message);
-t_list	*read_map(int fd, t_map *map);
-int		get_map_size(t_list *lst, t_map *map);
-int		make_coordinate(t_list *lst, t_coordinate *coor);
-void	get_map_color(t_list *lst, t_coordinate *coor);
+int		connect_vertex(t_graph *graph, t_map *map, t_coordinate *coor);
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
 void	init_color(t_gradient *dt);
 void	set_pixel_color(int *color, char *rgb);
 void	get_delta_color(t_gradient *dt);
 void	set_color_gradient(t_gradient *dt);
-void	draw_map(t_graph *graph, int vertex_id, t_data *data);
 int		find_x_max(t_coordinate *coor, int num_point);
 int		find_y_min(t_coordinate *coor, int num_point);
 int		find_y_max(t_coordinate *coor, int num_point);
-void	set_screen_coordinate(t_map *map);
-int		key_press(int keycode);
-void	set_offset(t_map *map);
-int		connect_vertex(t_graph *graph, t_map *map, t_coordinate *coor);
-void	init_map(t_map *map);
-void	get_screen_size(t_map *map);
-void	scale_map(t_map *map);
-void	set_mlx(t_data *data, t_map *map);
-void	set_map(t_map *map, t_file *file);
+void	terminate(char *error_message);
 void	free_array(char **ptr);
+t_list	*read_map(int fd, t_map *map);
+void	set_map_coordinate(t_map *map);
+void	adjust_map(t_map *map);
+void	set_mlx(t_data *data, t_map *map);
+void	draw_map(t_graph *graph, int vertex_id, t_data *data);
+int		key_press(int keycode);
+void	init_map(t_map *map);
 
 #endif

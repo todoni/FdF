@@ -1,4 +1,11 @@
 #include "../includes/fdf.h"
+#include <stdio.h>
+
+void	terminate(char *error_message)
+{
+	perror(error_message);
+	exit(1);
+}
 
 void	free_array(char **array)
 {
@@ -59,11 +66,4 @@ int	find_y_max(t_coordinate *coor, int num_point)
 		index++;
 	}
 	return (max);
-}
-
-int	key_press(int keycode)
-{
-	if (keycode == KEY_ESC)
-		exit(0);
-	return (0);
 }

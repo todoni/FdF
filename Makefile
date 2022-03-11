@@ -4,17 +4,16 @@ LIBFT_INC_DIR = ./libft/
 SOURCE_DIR = ./sources/
 OBJECT_DIR = objects
 FILES = \
-		errors \
 		graph \
-		map \
 		main \
-		bresenham \
-		color \
-		init \
-		setting \
-		utils \
-		utils2 \
-		draw \
+		color_gradient_utils \
+		graph_utils \
+		draw_map \
+		read_map \
+		adjust_map \
+		set_map_coordinate \
+		fdf_utils \
+		common_utils \
 
 vpath %.c $(SOURCE_DIR)
 
@@ -22,7 +21,7 @@ SOURCES = $(addprefix $(SOURCE_DIR), $(addsuffix .c, $(FILES)))
 OBJECTS = $(addprefix $(OBJECT_DIR)/, $(addsuffix .o, $(FILES)))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 DLIBS	= -framework Metal -framework AppKit
 LDFLAGS = -lmlx -Lmlx -Llibft -lft
 

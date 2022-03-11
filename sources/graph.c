@@ -1,30 +1,5 @@
 #include "../includes/fdf.h"
 
-void	delete_graph(t_graph *graph)
-{
-	int		i;
-	t_node	*tmp;
-
-	i = 0;
-	if (!graph->current_vertex_count)
-		return ;
-	while (i < graph->max_vertex_count)
-	{
-		while (graph->edge[i])
-		{
-			tmp = graph->edge[i];
-			graph->edge[i] = graph->edge[i]->next;
-			free(tmp);
-		}
-		i++;
-	}
-	free(graph->edge);
-	graph->edge = NULL;
-	free(graph->vertex);
-	graph->vertex = NULL;
-	free(graph);
-}
-
 t_node	**create_list(int max_vertex_count)
 {
 	t_node	**tmp_list;

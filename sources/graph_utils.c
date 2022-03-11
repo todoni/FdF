@@ -42,7 +42,7 @@ static int	connect_diagonal(t_graph *graph, t_map *map, t_coordinate *coor)
 	i = 0;
 	while (i + map->column < map->size)
 	{
-		add_edge(graph, i + map->column, i + 1, coor);
+		add_edge_return = add_edge(graph, i + map->column, i + 1, coor);
 		if (add_edge_return == FAIL)
 			return (FAIL);
 		++i;
